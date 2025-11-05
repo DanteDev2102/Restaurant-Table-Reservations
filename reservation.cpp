@@ -15,6 +15,12 @@ bool isNumeric(const string &cadena){
 	return !cadena.empty();
 }
 
+string toLower(const string& str) {
+    string lowerStr = str;
+    transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+    return lowerStr;
+}
+
 //Constructor
 Reservations::Reservations(){
 	first = nullptr;
