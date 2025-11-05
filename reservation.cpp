@@ -1,5 +1,13 @@
 #include "reservation.hpp"
 
+// Auxiliary functions
+bool isAlphabetic(const string &cadena){
+	for(int i = 0; i < cadena.length(); i++){
+		if(!isalpha(cadena[i])) return false;
+	}
+	return !cadena.empty();
+}
+
 //Constructor
 Reservations::Reservations(){
 	first = nullptr;
