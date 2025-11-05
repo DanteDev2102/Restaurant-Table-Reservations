@@ -28,5 +28,7 @@ class Reservations {
 	
 	private:
 		Reservation* first;
-		
+	
+	public:
+		Reservations();
 };
