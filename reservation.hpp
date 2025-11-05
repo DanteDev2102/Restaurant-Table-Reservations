@@ -33,4 +33,5 @@ class Reservations {
 		Reservations();
 		void setFirst(Reservation* p);
 		Reservation* getFirst();
+		bool full();
 };

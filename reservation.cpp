@@ -14,3 +14,17 @@ Reservations::Reservations(){
 void Reservations::setFirst(Reservation* p){
 	first = p;
 }
+
+bool Reservations::full(){
+	Reservation* p;
+    p=new Reservation();
+	
+	if(p==NULL)
+	{
+		return true;
+	}else
+	{
+		delete p;
+		return false;
+	}
+}
