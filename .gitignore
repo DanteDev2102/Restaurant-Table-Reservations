@@ -1,3 +1,3 @@
-.o
-.win
-.exe
+*.o
+*.win
+*.exe
