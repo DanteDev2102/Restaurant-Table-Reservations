@@ -8,6 +8,13 @@ bool isAlphabetic(const string &cadena){
 	return !cadena.empty();
 }
 
+bool isNumeric(const string &cadena){
+	for (int i = 0; i < cadena.length(); i++){
+		if (!isdigit(cadena[i])) return false;
+	}
+	return !cadena.empty();
+}
+
 //Constructor
 Reservations::Reservations(){
 	first = nullptr;
