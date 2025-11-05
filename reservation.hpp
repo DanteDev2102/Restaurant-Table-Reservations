@@ -15,8 +15,10 @@ class Reservation {
 		string dni = "";
 		string date = "";
 		Reservation* next = nullptr;
-		
-		Reservation(int table, int qty, string name, string dni, string date);
+			
+		Reservation() {}  //Implementacion de metodos constructores
+		Reservation(int table, int qty, string name, string dni, string date) 
+             : table(table), qty(qty), name(name), dni(dni), date(date), next(nullptr) {}
 	
 	friend class Reservations;
 };
