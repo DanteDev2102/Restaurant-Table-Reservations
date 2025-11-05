@@ -31,4 +31,6 @@ class Reservations {
 	
 	public:
 		Reservations();
+		void setFirst(Reservation* p);
+		Reservation* getFirst();
 };
