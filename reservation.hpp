@@ -34,4 +34,5 @@ class Reservations {
 		void setFirst(Reservation* p);
 		Reservation* getFirst();
 		bool full();
+		bool checkReservationData(int table, int qty, string name, string dni, string date);
 };
