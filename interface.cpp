@@ -1,5 +1,5 @@
 #include "interface.hpp"
-
+#include "reservation.cpp"
 #include <limits>
 #include <iomanip>
 #include <cstdlib>
@@ -38,7 +38,34 @@ void CmdInterface::processChoice(int choice) {
 		case 1:
 			app.configQtyTables();
 			break;
-		case 2:
+		case 2:{
+			Reservations list1;
+            char continuar = 's';
+
+		    while (continuar == 's' || continuar == 'S') {
+		        int mesa, cantPersonas;
+		        string nombre, cedula, dia;
+		
+		        cout << "\n--- Crear nueva reserva ---" << endl;
+		        cout << "Numero de mesa: ";
+		        cin >> mesa;
+		        cin.ignore();                    // Limpiar buffer antes de getline
+		        cout << "Nombre del cliente: ";
+		        getline(cin, nombre);
+		        cout << "Cedula del cliente: ";
+		        getline(cin, cedula);
+		        cout << "Dia de la reserva: ";
+		        getline(cin, dia);
+		        cout << "Cantidad de personas: ";
+		        cin >> cantPersonas;
+
+		        list1.createReservation(mesa, cantPersonas, nombre, cedula, dia);
+		
+		        cout << "\n¿Desea agregar otra reserva? (s/n): ";
+		        cin >> continuar;
+		        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer
+		    }
+		}
 			break;
 		case 3:
 			break;

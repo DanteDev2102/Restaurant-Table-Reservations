@@ -1,5 +1,7 @@
 #include <iostream>
 #include "interface.hpp"
+#include "interface.cpp"
+#include "application.cpp"
 
 using namespace std;
 
