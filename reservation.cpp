@@ -63,3 +63,29 @@ bool Reservations::checkReservationData(int table, int qty, string name, string 
 	
 	return true;
 }
+
+bool Reservations::createReservation(int table, int qty, string name, string dni, string date){
+	// 1 - Verificamos si los datos son validos 
+	if(!checkReservationData(table, qty, name, dni, date))
+	{
+		return false;
+	} 
+	else 
+	{
+		if(!full()){
+			ptr p = first;
+			// 2 - Una misma mesa no puede ser reservada por dos clientes diferentes el mismo dia
+			while(p != nullptr){
+				if(p-> table == table && toLower(p->date)== toLower(date)){
+					return false;
+				}
+				p = p->next;
+			}
+			// 3 - Creamos nueva reserva e insertamos al inicio si se pasan todas las verificaciones
+			Reservation* newNode = new Reservation(table, qty, name, dni, date);
+			newNode->next = first;
+			first = newNode;
+			return true;
+		}
+	}
+}

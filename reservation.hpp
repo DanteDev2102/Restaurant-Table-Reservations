@@ -35,4 +35,5 @@ class Reservations {
 		Reservation* getFirst();
 		bool full();
 		bool checkReservationData(int table, int qty, string name, string dni, string date);
+		bool createReservation(int table, int qty, string name, string dni, string date);
 };
