@@ -14,7 +14,7 @@ void Reservations::setFirst(Reservation* p){
 bool Reservations::full(){
 	Reservation* p;
     p=new Reservation();
-	
+
 	if(p==NULL)
 	{
 		return true;
@@ -24,28 +24,42 @@ bool Reservations::full(){
 		return false;
 	}
 }
+Reservation* Reservations::findReservationByDate(int table, string date) {
+    if(!(table < 1)) {
+        return nullptr;
+    }
+    ptr p = first;
+    while(p != nullptr) {
+        if(p->table == table && toLower(p->date) == toLower(date)) {
+            break;
+        } else {
+            p = p->next;
+        }
+    }
+    return p;
+}
 
 bool Reservations::checkReservationData(int table, int qty, string name, string dni, string date){
 	// numero de mesa o cantidad de personas negativo o mayor a 8
 	if(table < 1 || qty < 1 || qty > 8 ){
 		return false;
 	}
-	
+
 	//Verificar cadenas
 	if(!isAlphabetic(name) || !isAlphabetic(date) || !isNumeric(dni)) {
 		return false;
 	}
-	
+
 	return true;
 }
 
 bool Reservations::createReservation(int table, int qty, string name, string dni, string date){
-	// 1 - Verificamos si los datos son validos 
+	// 1 - Verificamos si los datos son validos
 	if(!checkReservationData(table, qty, name, dni, date))
 	{
 		return false;
-	} 
-	else 
+	}
+	else
 	{
 		if(!full()){
 			ptr p = first;
@@ -63,4 +77,42 @@ bool Reservations::createReservation(int table, int qty, string name, string dni
 			return true;
 		}
 	}
+}
+
+bool Reservations::updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date) {
+    if(ptr == nullptr) {
+        return false;
+    }
+    if(!checkReservationData(table, qty, name, dni, date)) {
+        return false; // Update values are not valid
+    }
+    if(findReservation(table, date) != nullptr) {
+        return false; // A reservation already exists
+    }
+    Reservation* p = ptr;
+    p->table = table;
+    p->qty = qty;
+    p->name = name;
+    p->dni = dni;
+    p->date = date;
+    return true;
+}
+
+bool Reservations::deleteReservation(Reservation* ptr) {
+    if(ptr == nullptr) {
+        return false;
+    }
+    Reservation* p = first;
+    while(p != nullptr) {
+        if(p->next != ptr) {
+            p = p->next;
+        } else {
+            break;
+        }
+    }
+    Reservation* old = ptr;
+    p->next = ptr->next;
+    // Make logic elimination
+    delete old;
+    return true;
 }

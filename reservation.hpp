@@ -16,25 +16,28 @@ class Reservation {
 		string dni = "";
 		string date = "";
 		Reservation* next = nullptr;
-			
+
 		Reservation() {}  //Implementacion de metodos constructores
-		Reservation(int table, int qty, string name, string dni, string date) 
+		Reservation(int table, int qty, string name, string dni, string date)
              : table(table), qty(qty), name(name), dni(dni), date(date), next(nullptr) {}
-	
+
 	friend class Reservations;
 };
 
 class Reservations {
 	typedef Reservation* ptr;
-	
+
 	private:
 		Reservation* first;
-	
+
 	public:
 		Reservations();
 		void setFirst(Reservation* p);
 		Reservation* getFirst();
 		bool full();
+		Reservation* findReservationByDate(int table, string date);
 		bool checkReservationData(int table, int qty, string name, string dni, string date);
 		bool createReservation(int table, int qty, string name, string dni, string date);
+		bool updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date);
+		bool deleteReservation(Reservation* ptr);
 };
