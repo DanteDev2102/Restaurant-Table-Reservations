@@ -22,3 +22,14 @@ string toLower(const string& str) {
     transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
     return lowerStr;
 }
+
+// Convierte un String la primera letra Mayuscula y el resto minuscula
+string capitalize(const string& s) {
+    if (s.empty()) return s;
+    string out = s;
+    out[0] = toupper(out[0]);
+    for (size_t i = 1; i < out.size(); ++i)
+        out[i] = tolower(out[i]);
+    return out;
+}
+

@@ -28,5 +28,6 @@ void Application::configQtyTables() {
 	
 	int alo = getQtyTables();
 	
-	cout << "this is a " << alo << endl;
+	//cout << "this is a " << alo << endl; se modifico mensaje a espanol
+	cout << "Se configuraron " << alo << " mesas en el restaurante." << endl;
 }

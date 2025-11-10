@@ -1,4 +1,5 @@
 #include "reservation.hpp"
+#include "utils/utility.hpp" 
 
 //Constructor
 Reservations::Reservations(){
@@ -10,11 +11,16 @@ Reservations::Reservations(){
 void Reservations::setFirst(Reservation* p){
 	first = p;
 }
+// agrege estaba declarada en reservatio.hpp
+Reservation* Reservations::getFirst() {
+    return first;
+}
+
 
 bool Reservations::full(){
 	Reservation* p;
     p=new Reservation();
-
+	
 	if(p==NULL)
 	{
 		return true;
@@ -24,16 +30,17 @@ bool Reservations::full(){
 		return false;
 	}
 }
+
 Reservation* Reservations::findReservationByDate(int table, string date) {
-    if(!(table < 1)) {
+    if(table < 1) {
         return nullptr;
     }
-    ptr p = first;
+    Reservation* p = getFirst();
     while(p != nullptr) {
-        if(p->table == table && toLower(p->date) == toLower(date)) {
-            break;
+        if(p->getTable() == table && toLower(p->getDate()) == toLower(date)) {
+            return p;
         } else {
-            p = p->next;
+            p = p->getNext();
         }
     }
     return p;
@@ -44,28 +51,28 @@ bool Reservations::checkReservationData(int table, int qty, string name, string 
 	if(table < 1 || qty < 1 || qty > 8 ){
 		return false;
 	}
-
+	
 	//Verificar cadenas
 	if(!isAlphabetic(name) || !isAlphabetic(date) || !isNumeric(dni)) {
 		return false;
 	}
-
+	
 	return true;
 }
 
 bool Reservations::createReservation(int table, int qty, string name, string dni, string date){
-	// 1 - Verificamos si los datos son validos
+	// 1 - Verificamos si los datos son validos 
 	if(!checkReservationData(table, qty, name, dni, date))
 	{
 		return false;
-	}
-	else
+	} 
+	else 
 	{
 		if(!full()){
 			ptr p = first;
 			// 2 - Una misma mesa no puede ser reservada por dos clientes diferentes el mismo dia
 			while(p != nullptr){
-				if(p-> table == table && toLower(p->date)== toLower(date)){
+				if(p->table == table && toLower(p->date) == toLower(date)){
 					return false;
 				}
 				p = p->next;
@@ -80,7 +87,7 @@ bool Reservations::createReservation(int table, int qty, string name, string dni
 }
 
 bool Reservations::updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date) {
-    if(ptr == nullptr) {
+	if(ptr == nullptr) {
         return false;
     }
     if(!checkReservationData(table, qty, name, dni, date)) {
@@ -99,20 +106,47 @@ bool Reservations::updateReservation(Reservation* ptr, int table, int qty, strin
 }
 
 bool Reservations::deleteReservation(Reservation* ptr) {
-    if(ptr == nullptr) {
+    Reservation* old;
+	if(ptr == nullptr) {
         return false;
     }
-    Reservation* p = first;
-    while(p != nullptr) {
-        if(p->next != ptr) {
-            p = p->next;
-        } else {
-            break;
-        }
-    }
-    Reservation* old = ptr;
-    p->next = ptr->next;
+    Reservation* p = getFirst();
+    if(ptr == p) {
+    	setFirst(ptr->getNext());
+	}
+    while (p != nullptr && p->getNext() != ptr) {
+    	p = p->getNext();
+	}
+	old = ptr;
+	p->next = ptr->getNext();
     // Make logic elimination
     delete old;
     return true;
 }
+
+// Buscar reservacion por cedula
+Reservation* Reservations::searchReservationByDni(const string& dni, Reservation* start) {
+    Reservation* p = start;
+    while (p != nullptr) {
+        if (p->getDni() == dni) {
+            return p;
+        }
+        p = p->next;
+    }
+    return nullptr;
+}
+
+
+// Contar Reservaciones
+int Reservations::getCount() {
+    int cnt = 0;
+    Reservation* p = getFirst();
+    while (p != nullptr) {
+        ++cnt;
+        p = p->getNext();
+    }
+    return cnt;
+}
+
+
+

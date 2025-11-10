@@ -1,6 +1,6 @@
 [Project]
 FileName=restaurant.dev
-Name=Restaurant
+Name=Restaurant-Table-Reservations
 Type=1
 Ver=2
 ObjFiles=
@@ -24,7 +24,7 @@ HostApplication=
 UseCustomMakefile=0
 CustomMakefile=
 CommandLine=
-Folders=src,src/cmd,src/domain
+Folders=utils
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
@@ -50,27 +50,7 @@ ProductVersion=1.0.0.0
 AutoIncBuildNr=0
 SyncProduct=1
 
-[Unit2]
-FileName=reservation.hpp
-CompileCpp=1
-Folder=src/domain
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit3]
-FileName=reservation.cpp
-CompileCpp=1
-Folder=src/domain
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit6]
 FileName=interface.cpp
 CompileCpp=1
 Folder=
@@ -80,8 +60,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit7]
-FileName=interface.hpp
+[Unit6]
+FileName=application.cpp
 CompileCpp=1
 Folder=
 Compile=1
@@ -93,7 +73,7 @@ BuildCmd=
 [Unit1]
 FileName=main.cpp
 CompileCpp=1
-Folder=src
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -101,9 +81,29 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=interface.cpp
+FileName=application.cpp
 CompileCpp=1
-Folder=src/cmd
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit9]
+FileName=utils\utility.hpp
+CompileCpp=1
+Folder=utils
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
+FileName=reservation.cpp
+CompileCpp=1
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -111,9 +111,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=interface.hpp
+FileName=utils\utility.cpp
 CompileCpp=1
-Folder=src/cmd
+Folder=utils
 Compile=1
 Link=1
 Priority=1000
