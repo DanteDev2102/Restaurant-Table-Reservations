@@ -123,8 +123,61 @@ void CmdInterface::processChoice(int choice) {
 			}
     		break;
 		}
-		case 4:
+		case 4: {
+			int searchTable, mesa, cantPersonas;
+            string searchDate, nombre, cedula, dia;
+            char continueVar = 's';
+            Reservation* resultSearch;
+            bool resultUpdate;
+
+            while(continueVar == 's' || continueVar == 'S') {
+                cout << "Ingrese la mesa reservacion a actualizar: ";
+                cin >> searchTable;
+                cin.ignore();
+                cout << "\nIngrese el dia de la reservacion a actualizar: ";
+                getline(cin, searchDate);
+                resultSearch = list1.findReservationByDate(searchTable, searchDate);
+                if(resultSearch == nullptr) {
+                    cout << "La reservacion buscada no existe" << endl;
+                    cout << "¿Desea continuar? (s/n) " << endl;
+                    cin >> continueVar;
+                    cin.ignore();
+                    if (continueVar == 'n' || continueVar == 'N') {
+                        break;
+                    }
+                    continue;
+                }
+                break;
+            }
+
+            while(continueVar == 's' || continueVar == 'S') {
+                cout << "Reservacion encontrada!" << endl;
+                cout << "Ingrese el nuevo numero de mesa: ";
+                cin >> mesa;
+                cin.ignore();
+                cout << "Ingrese el nuevo día de la reservacion ";
+                getline(cin, dia);
+                cout << "Cedula del cliente: ";
+                getline(cin, cedula);
+                cout << "Nombre del cliente: ";
+                getline(cin, nombre);
+                cout << "Cantidad de personas para la reserva: ";
+                cin >> cantPersonas;
+                bool resultUpdate;
+                resultUpdate = list1.updateReservation(resultSearch, mesa, cantPersonas, nombre, cedula, dia);
+                if (resultUpdate == false) {
+                    cout << "Surgio un error con los datos, ¿desea volver a intentar? (s/n)";
+                    cin >> continueVar;
+                    if (continueVar == 'n' || continueVar == 'N') {
+                        break;
+                    }
+                    continue;
+                }
+                cout << "La reservacion se ha actualizado con exito!";
+                break;
+            }
 			break;
+		}
 		case 5: {
 			//MOSTRAR REPORTE POR DIA
 		    Reservation* p = list1.getFirst();
@@ -183,8 +236,40 @@ void CmdInterface::processChoice(int choice) {
 		    break;
 		}
 
-		case 6:
+		case 6: {
+			char continueVar = 's';
+            int mesa;
+            string dia;
+            Reservation* resultSearch;
+            bool resultDelete;
+
+            while (continueVar == 's' || continueVar == 'S') {
+                cout << "Ingrese la mesa de la reservacion: ";
+                cin >> mesa;
+                cin.ignore();
+                cout << "Ingrese el dia de la reservacion: ";
+                getline(cin, dia);
+                resultSearch = list1.findReservationByDate(mesa, dia);
+                cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
+                cin >> continueVar;
+                if (continueVar == 's' || continueVar == 'S') {
+                	resultDelete = list1.deleteReservation(resultSearch);
+				} else {
+					break;
+				}
+                if(resultDelete == false) {
+                    cout << "La reservacion buscada no existe, ¿desea volver a intentar? (s/n) ";
+                    cin >> continueVar;
+                    if(continueVar == 'n' || continueVar == 'N') {
+                        break;
+                    }
+                    continue;
+                }
+                cout << "Reservacion cancelada exitosamente" << endl;
+                break;
+            }
 			break;
+		}
 			
 		case 7: {
 			// LISTAR MESAS RESERVADAS
