@@ -57,10 +57,8 @@ void CmdInterface::processChoice(int choice) {
 		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
 		    	peopleQty = readIntergers("Cantidad de personas (1-8): ", 1,8);
 		    	
-		    	Reservation *p = new Reservation(table, peopleQty, name, dni, day);
-		    	if(!list1.insertAtBeginning(p)){
+		    	if(!list1.insertAtBeginning(table,peopleQty,name,dni,day)){
 		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
-		    		delete p;
 				} else{
 					cout <<"Reservacion exitosa"<<endl;
 				}
