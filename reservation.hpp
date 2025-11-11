@@ -47,6 +47,7 @@ class Reservations {
 		void setFirst(Reservation* p);
 		Reservation* getFirst();
 		bool full();
+		bool insertAtBeginning(Reservation* newNode);
 		bool createReservation(int table, int qty, string name, string dni, string date);
 		bool updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date);
 		bool deleteReservation(Reservation* ptr, Reservations& cancelledList);

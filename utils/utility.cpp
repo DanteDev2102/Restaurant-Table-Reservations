@@ -85,3 +85,61 @@ bool checkReservationData(int table, int qty, string name, string dni, string da
 	return true;
 }
 
+int readIntergers(const string &message, int min, int max){
+	int value;
+	while(true){
+		cout << message;
+		cin >>value;
+		
+		if(cin.fail()){
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << "Entrada invalida. Debe ingresar un numero entero.\n";
+		} else if (value < min || value > max  ){
+			cout << "Valor fuera de rango (" << min << " - " << max << "). Intente de nuevo.\n";
+		} else{
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			return value;
+		}
+	}
+}
+
+string readAlphaString(const string &message){
+	string input;
+	while(true){
+		cout << message;
+		getline(cin, input);
+		if(isAlphabetic(input)) return input;
+		cout << "Entrada invalida. Solo se permiten letras sin espacios ni simbolos.\n";
+	}
+}
+
+string readDNI(const string &message){
+	string input;
+	while(true){
+		cout << message;
+		getline(cin, input);
+		if(isNumeric(input) && input.length() == 8 ) return input;
+		cout << "Entrada invalida. La cedula debe contener solo numeros y longitud de 8 digitos \n";
+	}
+}
+
+bool isValidDay(const string &day){
+	static const vector<string> validDays = {
+		"lunes", "martes", "miercoles", "jueves", "viernes"
+	};
+	for(const string &d : validDays){
+		if (toLower(day) == d) return true;
+	}
+	return false;
+}
+
+string readValidDay(const string &message){
+	string input;
+	while(true) {
+		cout << message;
+        getline(cin, input);
+        if(isAlphabetic(input) && isValidDay(input)) return input;
+        cout << "Entrada invalida. Debe ingresar un dia valido (Lunes a Viernes).\n";
+	}
+}

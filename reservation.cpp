@@ -46,7 +46,6 @@ Reservation* Reservations::findReservationByDate(int table, string date) {
     return p;
 }
 
-
 bool Reservations::createReservation(int table, int qty, string name, string dni, string date){
 	// 1 - Verificamos si los datos son validos 
 	if(!checkReservationData(table, qty, name, dni, date))
@@ -141,3 +140,16 @@ bool Reservations::isEmpty() {
     return getFirst() == nullptr;
 }
 
+bool Reservations::insertAtBeginning(Reservation* newNode){
+	Reservation* p = first;
+	while (p != nullptr){
+		if(p->getTable() == newNode ->getTable() && toLower(p->getDate()) == toLower(newNode->getDate())) {
+			return false;
+		}
+		p = p->getNext();
+	}
+	
+	newNode->next = first;
+	first = newNode;
+	return true;
+}
