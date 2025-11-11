@@ -202,7 +202,7 @@ void CmdInterface::processChoice(int choice) {
 		    }
 		
 		    // Mostrar cantidad de Reservas por dia
-		    cout << "----- Reporte de Reservas por Da -----" << endl;
+		    cout << "----- Reporte de Reservas por Dia -----" << endl;
 		    cout << "Lunes:     " << lunes << endl;
 		    cout << "Martes:    " << martes << endl;
 		    cout << "Miércoles: " << miercoles << endl;
@@ -237,6 +237,7 @@ void CmdInterface::processChoice(int choice) {
 		}
 
 		case 6: {
+			// Cancelar Reservaciones
 			char continueVar = 's';
             int mesa;
             string dia;
@@ -253,7 +254,7 @@ void CmdInterface::processChoice(int choice) {
                 cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
                 cin >> continueVar;
                 if (continueVar == 's' || continueVar == 'S') {
-                	resultDelete = list1.deleteReservation(resultSearch);
+                	resultDelete = list1.deleteReservation(resultSearch, cancelledList);
 				} else {
 					break;
 				}
@@ -266,6 +267,8 @@ void CmdInterface::processChoice(int choice) {
                     continue;
                 }
                 cout << "Reservacion cancelada exitosamente" << endl;
+                Reservation* puntero = cancelledList.getFirst();
+                cout << "Reservacion cancelada: " << puntero->getTable() << ". Del dia: " << puntero->getDate() << endl;
                 break;
             }
 			break;

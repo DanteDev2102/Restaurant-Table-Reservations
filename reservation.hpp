@@ -50,7 +50,7 @@ class Reservations {
 		bool checkReservationData(int table, int qty, string name, string dni, string date);
 		bool createReservation(int table, int qty, string name, string dni, string date);
 		bool updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date);
-		bool deleteReservation(Reservation* ptr);
+		bool deleteReservation(Reservation* ptr, Reservations& cancelledList);
 		
 		// Buscar reservacion por cedula
     	 Reservation* searchReservationByDni(const string& dni, Reservation* start);
