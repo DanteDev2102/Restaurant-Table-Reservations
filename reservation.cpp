@@ -11,7 +11,7 @@ Reservations::Reservations(){
 void Reservations::setFirst(Reservation* p){
 	first = p;
 }
-// agrege estaba declarada en reservatio.hpp
+// agrege estaba declarada en reservation.hpp
 Reservation* Reservations::getFirst() {
     return first;
 }
@@ -148,5 +148,8 @@ int Reservations::getCount() {
     return cnt;
 }
 
-
+//Verifica Lista esta Vacia
+bool Reservations::isEmpty() {
+    return getFirst() == nullptr;
+}
 

@@ -1,6 +1,10 @@
-#include "utility.hpp"
 #include <algorithm>
 #include <cctype>
+#include "utility.hpp"
+#include "../reservation.hpp"
+#include <iostream>
+
+using namespace std;
 
 // Auxiliary functions
 bool isAlphabetic(const string &cadena){
@@ -31,5 +35,39 @@ string capitalize(const string& s) {
     for (size_t i = 1; i < out.size(); ++i)
         out[i] = tolower(out[i]);
     return out;
+}
+
+
+// Mostrar Reservas por dia
+void mostrarReservasPorDia(Reservations& lista, const string& diaBuscado) {
+
+    int contador = 0;
+    Reservation* p = lista.getFirst();
+    while (p != nullptr) {
+        string dia = toLower(p->getDate());
+        if (dia == toLower(diaBuscado)) {
+            ++contador;
+        }
+        p = p->getNext();
+    }
+
+    cout << capitalize(diaBuscado) << ": " << contador << endl;
+
+    if (contador > 0) {
+        cout << "--- Reservas para " << capitalize(diaBuscado) << " ---" << endl;
+        p = lista.getFirst();
+        while (p != nullptr) {
+            string dia = toLower(p->getDate());
+            if (dia == toLower(diaBuscado)) {
+                cout << "Numero de mesa: " << p->getTable() << endl;
+                cout << "Nombre del cliente: " << p->getName() << endl;
+                cout << "Cedula del cliente: " << p->getDni() << endl;
+                cout << "Dia de la reserva: " << p->getDate() << endl;
+                cout << "Cantidad de personas: " << p->getQty() << endl;
+                cout << "------------------------------" << endl;
+            }
+            p = p->getNext();
+        }
+    }
 }
 

@@ -77,6 +77,13 @@ void CmdInterface::processChoice(int choice) {
 			break;
 		case 3: {
 			// CONSULTAR RESERVA POR CEDULA
+			if (list1.isEmpty()) {
+			    cout << "No hay reservaciones registradas." << endl;
+			    cout << "Presione ENTER para continuar...";
+			    string _tmp; getline(cin, _tmp);
+			    break;
+			}
+
 			char continuar = 's';
     		while (continuar == 's' || continuar == 'S') {
 	    		string dniSearch;
@@ -90,7 +97,7 @@ void CmdInterface::processChoice(int choice) {
 		            continue;
 		        }
 	
-			    Reservation* startNode = list1.getFirst(); // reinicia desde el inicio de la lista
+			    Reservation* startNode = list1.getFirst(); // reinicia busqueda desde el inicio de la lista
 			    
 				bool found = false;
 	
@@ -109,7 +116,6 @@ void CmdInterface::processChoice(int choice) {
 			
 			        // Avanzar al siguiente nodo después del encontrado
             		startNode = p->getNext();
-            		cout << "[DEBUG] Nodo actual: " << p->getDni() << endl;
 
 			    }
 			
@@ -179,62 +185,25 @@ void CmdInterface::processChoice(int choice) {
 			break;
 		}
 		case 5: {
-			//MOSTRAR REPORTE POR DIA
-		    Reservation* p = list1.getFirst();
-		    if (p == nullptr) {
+		    if (list1.isEmpty()) {
 		        cout << "No hay reservaciones registradas." << endl;
 		        cout << "Presione ENTER para continuar...";
 		        string _tmp; getline(cin, _tmp);
 		        break;
 		    }
 		
-		    // Primer recorrido: Contar reservas por dia
-		    int lunes = 0, martes = 0, miercoles = 0, jueves = 0, viernes = 0;
-		    p = list1.getFirst();
-		    while (p != nullptr) {
-		        string dia = toLower(p->getDate());
-		        if (dia == "lunes") ++lunes;
-		        else if (dia == "martes") ++martes;
-		        else if (dia == "miercoles" || dia == "miércoles") ++miercoles;
-		        else if (dia == "jueves") ++jueves;
-		        else if (dia == "viernes") ++viernes;
-		        p = p->getNext();
-		    }
-		
-		    // Mostrar cantidad de Reservas por dia
-		    cout << "----- Reporte de Reservas por Da -----" << endl;
-		    cout << "Lunes:     " << lunes << endl;
-		    cout << "Martes:    " << martes << endl;
-		    cout << "Miércoles: " << miercoles << endl;
-		    cout << "Jueves:    " << jueves << endl;
-		    cout << "Viernes:   " << viernes << endl;
-		    cout << "---------------------------------------" << endl;
-		
-		    // Segundo recorrido: imprimir reservas por día
-		    string dias[] = {"lunes", "martes", "miercoles", "miércoles", "jueves", "viernes"};
-		    for (int d = 0; d < 5; ++d) {
-		        string diaActual = dias[d];
-		        cout << "--- Reservas para " << capitalize(diaActual) << " ---" << endl;
-		
-		        p = list1.getFirst();
-		        while (p != nullptr) {
-		            string dia = toLower(p->getDate());
-		            if (dia == diaActual || (diaActual == "miercoles" && dia == "miércoles")) {
-		                cout << "Numero de mesa: " << p->getTable() << endl;
-		                cout << "Nombre del cliente: " << p->getName() << endl;
-		                cout << "Cedula del cliente: " << p->getDni() << endl;
-		                cout << "Dia de la reserva: " << p->getDate() << endl;
-		                cout << "Cantidad de personas: " << p->getQty() << endl;
-		                cout << "------------------------------" << endl;
-		            }
-		            p = p->getNext();
-		        }
-		    }
+		    cout << "----- Reporte de Reservas por Dia -----" << endl;
+		    mostrarReservasPorDia(list1, "lunes");
+		    mostrarReservasPorDia(list1, "martes");
+		    mostrarReservasPorDia(list1, "miercoles");
+		    mostrarReservasPorDia(list1, "jueves");
+		    mostrarReservasPorDia(list1, "viernes");
 		
 		    cout << "Presione ENTER para continuar...";
 		    string _tmp; getline(cin, _tmp);
 		    break;
 		}
+
 
 		case 6: {
 			char continueVar = 's';
@@ -273,18 +242,19 @@ void CmdInterface::processChoice(int choice) {
 			
 		case 7: {
 			// LISTAR MESAS RESERVADAS
-		    Reservation* p = list1.getFirst();
-		    if (p == nullptr) {
-		        cout << "No hay reservaciones registradas." << endl;
-		        cout << "Presione ENTER para continuar...";
-		        string _tmp; getline(cin, _tmp);
-		        break;
-		    }
+		    if (list1.isEmpty()) {
+			    cout << "No hay reservaciones registradas." << endl;
+			    cout << "Presione ENTER para continuar...";
+			    string _tmp; getline(cin, _tmp);
+			    break;
+			}
+
 		
 		    int total = list1.getCount();
 		    cout << "----- Total Reservas (" << total << ") -----" << endl;
 		    cout << "----- Lista de Reservas -----" << endl;
 		
+			Reservation* p = list1.getFirst();
 		    while (p != nullptr) {
 		        cout << "----------Reservacion------------" << endl;
 		        cout << "Numero de mesa: " << p->getTable() << endl;
@@ -328,5 +298,5 @@ void CmdInterface::displayMenu() const {
 
 void CmdInterface::clearScreen() const {
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	std::system("cls"); // correji faltaban :
+	std::system("cls"); 
 }

@@ -52,6 +52,9 @@ class Reservations {
 		bool updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date);
 		bool deleteReservation(Reservation* ptr);
 		
+		// Verifica si Lista esta vacia
+		bool isEmpty();
+
 		// Buscar reservacion por cedula
     	 Reservation* searchReservationByDni(const string& dni, Reservation* start);
     	 Reservation* findReservationByDate(int table, string date);
