@@ -46,19 +46,6 @@ Reservation* Reservations::findReservationByDate(int table, string date) {
     return p;
 }
 
-bool Reservations::checkReservationData(int table, int qty, string name, string dni, string date){
-	// numero de mesa o cantidad de personas negativo o mayor a 8
-	if(table < 1 || qty < 1 || qty > 8 ){
-		return false;
-	}
-	
-	//Verificar cadenas
-	if(!isAlphabetic(name) || !isAlphabetic(date) || !isNumeric(dni)) {
-		return false;
-	}
-	
-	return true;
-}
 
 bool Reservations::createReservation(int table, int qty, string name, string dni, string date){
 	// 1 - Verificamos si los datos son validos 

@@ -71,3 +71,17 @@ void mostrarReservasPorDia(Reservations& lista, const string& diaBuscado) {
     }
 }
 
+bool checkReservationData(int table, int qty, string name, string dni, string date){
+	// numero de mesa o cantidad de personas negativo o mayor a 8
+	if(table < 1 || qty < 1 || qty > 8 ){
+		return false;
+	}
+	
+	//Verificar cadenas
+	if(!isAlphabetic(name) || !isAlphabetic(date) || !isNumeric(dni)) {
+		return false;
+	}
+	
+	return true;
+}
+

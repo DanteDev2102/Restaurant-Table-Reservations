@@ -16,6 +16,8 @@ string capitalize(const string& str);
 // Mostrar Reservas por dia
 void mostrarReservasPorDia(Reservations& lista, const string& diaBuscado);
 
+bool checkReservationData(int table, int qty, string name, string dni, string date);
+
 
 
 
