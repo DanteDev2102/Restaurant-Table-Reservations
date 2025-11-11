@@ -105,7 +105,7 @@ bool Reservations::updateReservation(Reservation* ptr, int table, int qty, strin
     return true;
 }
 
-bool Reservations::deleteReservation(Reservation* ptr) {
+bool Reservations::deleteReservation(Reservation* ptr, Reservations& cancelledList) {
     Reservation* old;
 	if(ptr == nullptr) {
         return false;
@@ -113,13 +113,14 @@ bool Reservations::deleteReservation(Reservation* ptr) {
     Reservation* p = getFirst();
     if(ptr == p) {
     	setFirst(ptr->getNext());
-	}
-    while (p != nullptr && p->getNext() != ptr) {
-    	p = p->getNext();
+	} else {
+			while (p != nullptr && p->getNext() != ptr) {
+				p = p->getNext();
+		}
 	}
 	old = ptr;
 	p->next = ptr->getNext();
-    // Make logic elimination
+	cancelledList.createReservation(ptr->getTable(), ptr->getQty(), ptr->getName(), ptr->getDni(), ptr->getDate());
     delete old;
     return true;
 }
