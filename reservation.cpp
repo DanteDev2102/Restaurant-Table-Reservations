@@ -21,7 +21,7 @@ bool Reservations::full(){
 	Reservation* p;
     p=new Reservation();
 	
-	if(p==NULL)
+	if(p==nullptr)
 	{
 		return true;
 	}else
@@ -46,43 +46,24 @@ Reservation* Reservations::findReservationByDate(int table, string date) {
     return p;
 }
 
-bool Reservations::checkReservationData(int table, int qty, string name, string dni, string date){
-	// numero de mesa o cantidad de personas negativo o mayor a 8
-	if(table < 1 || qty < 1 || qty > 8 ){
-		return false;
-	}
-	
-	//Verificar cadenas
-	if(!isAlphabetic(name) || !isAlphabetic(date) || !isNumeric(dni)) {
-		return false;
-	}
-	
-	return true;
-}
-
-bool Reservations::createReservation(int table, int qty, string name, string dni, string date){
-	// 1 - Verificamos si los datos son validos 
-	if(!checkReservationData(table, qty, name, dni, date))
-	{
-		return false;
-	} 
-	else 
-	{
-		if(!full()){
-			ptr p = first;
+bool Reservations::insertAtBeginning(int table, int qty, string name, string dni, string date){
+	// 1 - Verificamos si hay espacio en memoria
+	if(!full()){
+		ptr p = first;
 			// 2 - Una misma mesa no puede ser reservada por dos clientes diferentes el mismo dia
-			while(p != nullptr){
-				if(p->table == table && toLower(p->date) == toLower(date)){
+		while(p != nullptr){
+			if(p->getTable() == table && toLower(p->getDate()) == toLower(date)){
 					return false;
-				}
-				p = p->next;
 			}
-			// 3 - Creamos nueva reserva e insertamos al inicio si se pasan todas las verificaciones
-			Reservation* newNode = new Reservation(table, qty, name, dni, date);
-			newNode->next = first;
-			first = newNode;
-			return true;
+			p = p->next;
 		}
+		// 3 - Creamos nueva reserva e insertamos al inicio si se pasan todas las verificaciones
+		Reservation* newNode = new Reservation(table, qty, name, dni, date);
+		newNode->next = first;
+		first = newNode;
+		return true;
+	}else{
+		return false;
 	}
 }
 
@@ -120,7 +101,7 @@ bool Reservations::deleteReservation(Reservation* ptr, Reservations& cancelledLi
 	}
 	old = ptr;
 	p->next = ptr->getNext();
-	cancelledList.createReservation(ptr->getTable(), ptr->getQty(), ptr->getName(), ptr->getDni(), ptr->getDate());
+	cancelledList.insertAtBeginning(ptr->getTable(), ptr->getQty(), ptr->getName(), ptr->getDni(), ptr->getDate());
     delete old;
     return true;
 }

@@ -45,29 +45,23 @@ void CmdInterface::processChoice(int choice) {
 			app.configQtyTables();
 			break;
 		case 2:{
-			// RESERVAR UNA MESA
-			//  Reservations list1; Lo puse en comentario porque se e declaro en interface.hpp para que la lista1 permanezca viva en todas las opciones
-			
+			// RESERVAR UNA MESA		
             char continuar = 's';
-
+            int tables = app.getQtyTables();
+            int table, peopleQty;
+            string name, dni, day;
 		    while (continuar == 's' || continuar == 'S') {
-		        int mesa, cantPersonas;
-		        string nombre, cedula, dia;
-		
-		        cout << "\n--- Crear nueva reserva ---" << endl;
-		        cout << "Numero de mesa: ";
-		        cin >> mesa;
-		        cin.ignore();                    // Limpiar buffer antes de getline
-		        cout << "Nombre del cliente: ";
-		        getline(cin, nombre);
-		        cout << "Cedula del cliente: ";
-		        getline(cin, cedula);
-		        cout << "Dia de la reserva: ";
-		        getline(cin, dia);
-		        cout << "Cantidad de personas: ";
-		        cin >> cantPersonas;
-
-		        list1.createReservation(mesa, cantPersonas, nombre, cedula, dia);
+		    	table = readIntergers("Numero de mesa: ", 1, tables);
+		    	name = readAlphaString("Nombre del cliente: ");
+		    	dni = readDNI("Cedula del cliente (8 digitos): ");
+		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
+		    	peopleQty = readIntergers("Cantidad de personas (1-8): ", 1,8);
+		    	
+		    	if(!list1.insertAtBeginning(table,peopleQty,name,dni,day)){
+		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
+				} else{
+					cout <<"Reservacion exitosa"<<endl;
+				}
 		
 		        cout << "\n¿Desea agregar otra reserva? (s/n): ";
 		        cin >> continuar;
