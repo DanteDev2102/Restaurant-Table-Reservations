@@ -10,7 +10,7 @@
 class CmdInterface {
 	private:
 		Application app;
-		Reservations list1;   // lista Exista en todas las opciones
+		Reservations list1;
 		Reservations cancelledList;
 		void displayMenu() const;
 		void processChoice(int choice);
