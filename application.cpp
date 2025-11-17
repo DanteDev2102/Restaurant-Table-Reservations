@@ -2,9 +2,7 @@
 
 using namespace std;
 
-Application::Application(int qty) {
-	qtyTables = qty;
-}
+Application::Application(int qty): qtyTables(qty), db(new Database("db.json")) {}
 
 void Application::setQtyTables(int qty) {
 	qtyTables = qty;
@@ -26,8 +24,15 @@ void Application::configQtyTables() {
 	
 	setQtyTables(qty);
 	
-	int alo = getQtyTables();
+	for (int i = 0; i < qtyTables; i++) {
+		int tableNumber = i + 1;
+		
+		json tableData;
+        tableData["number"] = std::to_string(tableNumber);
+        tableData["available"] = true; 
+        
+		db->createRecord("tables", std::to_string(tableNumber), tableData);
+	}
 	
-	//cout << "this is a " << alo << endl; se modifico mensaje a espanol
-	cout << "Se configuraron " << alo << " mesas en el restaurante." << endl;
+	cout << "Se configuraron " << qty << " mesas en el restaurante." << endl;
 }

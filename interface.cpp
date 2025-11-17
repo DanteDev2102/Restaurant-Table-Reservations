@@ -1,5 +1,5 @@
 #include "interface.hpp"
-#include "reservation.hpp"   // para usar Reservation y Reservations
+#include "reservation.hpp"
 #include "utils/utility.hpp"
 
 #include <limits>
@@ -19,15 +19,14 @@ void CmdInterface::run() {
 		displayMenu();
 		
 		if (!(cin >> choice)) {
-            cout << "Error: Entrada inválida. Ingrese un número." << endl;
+            cout << "Error: Entrada invï¿½lida. Ingrese un nï¿½mero." << endl;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
             choice = -1;
             clearScreen();
             continue; 
         }
-        
-        // Consumir el '\n' que quedó después de >> choice para que futuros getline funcionen
+
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         processChoice(choice);
@@ -41,11 +40,9 @@ void CmdInterface::processChoice(int choice) {
 		case 0:
 			break;
 		case 1:
-			//CONFIGURAR MESAS
 			app.configQtyTables();
 			break;
-		case 2:{
-			// RESERVAR UNA MESA		
+		case 2:{		
             char continuar = 's';
             int tables = app.getQtyTables();
             int table, peopleQty;
@@ -63,14 +60,13 @@ void CmdInterface::processChoice(int choice) {
 					cout <<"Reservacion exitosa"<<endl;
 				}
 		
-		        cout << "\n¿Desea agregar otra reserva? (s/n): ";
+		        cout << "\nï¿½Desea agregar otra reserva? (s/n): ";
 		        cin >> continuar;
 		        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer
 		    }
 		}
 			break;
 		case 3: {
-			// CONSULTAR RESERVA POR CEDULA
 			if (list1.isEmpty()) {
 			    cout << "No hay reservaciones registradas." << endl;
 			    cout << "Presione ENTER para continuar...";
@@ -82,16 +78,15 @@ void CmdInterface::processChoice(int choice) {
     		while (continuar == 's' || continuar == 'S') {
 	    		string dniSearch;
 	    		cout << "Cedula del cliente: ";
-	    		// Lectura de cedula
+
         		getline(cin, dniSearch);
 
-		        // si el usuario accidentalmente presionó Enter, volvemos a pedir
 		        if (dniSearch.empty()) {
 		            cout << "Cedula vacia. Intente de nuevo." << endl;
 		            continue;
 		        }
 	
-			    Reservation* startNode = list1.getFirst(); // reinicia busqueda desde el inicio de la lista
+			    Reservation* startNode = list1.getFirst();
 			    
 				bool found = false;
 	
@@ -100,15 +95,13 @@ void CmdInterface::processChoice(int choice) {
 			    	Reservation* p = list1.searchReservationByDni(dniSearch, startNode);
 			    	if (p == nullptr) break;
 			    	
-			    	// Mostrar Reservacion
 			        cout << "----------Reservacion------------" << endl;
 			        cout << "Numero de mesa: " << p->getTable() << endl;
 			        cout << "Nombre del cliente: " << p->getName() << endl;
 			        cout << "Dia de la reserva: " << p->getDate() << endl;
 			        cout << "Cantidad de personas: " << p->getQty() << endl;
 			        found = true;
-			
-			        // Avanzar al siguiente nodo después del encontrado
+
             		startNode = p->getNext();
 
 			    }
@@ -117,9 +110,9 @@ void CmdInterface::processChoice(int choice) {
 			        cout << "No hay reservaciones para esa cedula" << endl;
 			    }
 			    
-			    cout << "\n¿Desea buscar otra cedula? (s/n): ";
+			    cout << "\nï¿½Desea buscar otra cedula? (s/n): ";
 			    cin >> continuar;
-			    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // limpiar buffer antes del siguiente getline
+			    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			}
     		break;
 		}
@@ -139,7 +132,7 @@ void CmdInterface::processChoice(int choice) {
                 resultSearch = list1.findReservationByDate(searchTable, searchDate);
                 if(resultSearch == nullptr) {
                     cout << "La reservacion buscada no existe" << endl;
-                    cout << "¿Desea continuar? (s/n) " << endl;
+                    cout << "ï¿½Desea continuar? (s/n) " << endl;
                     cin >> continueVar;
                     cin.ignore();
                     if (continueVar == 'n' || continueVar == 'N') {
@@ -155,7 +148,7 @@ void CmdInterface::processChoice(int choice) {
                 cout << "Ingrese el nuevo numero de mesa: ";
                 cin >> mesa;
                 cin.ignore();
-                cout << "Ingrese el nuevo día de la reservacion ";
+                cout << "Ingrese el nuevo dï¿½a de la reservacion ";
                 getline(cin, dia);
                 cout << "Cedula del cliente: ";
                 getline(cin, cedula);
@@ -166,7 +159,7 @@ void CmdInterface::processChoice(int choice) {
                 bool resultUpdate;
                 resultUpdate = list1.updateReservation(resultSearch, mesa, cantPersonas, nombre, cedula, dia);
                 if (resultUpdate == false) {
-                    cout << "Surgio un error con los datos, ¿desea volver a intentar? (s/n)";
+                    cout << "Surgio un error con los datos, ï¿½desea volver a intentar? (s/n)";
                     cin >> continueVar;
                     if (continueVar == 'n' || continueVar == 'N') {
                         break;
@@ -200,7 +193,6 @@ void CmdInterface::processChoice(int choice) {
 
 
 		case 6: {
-			// Cancelar Reservaciones
 			char continueVar = 's';
             int mesa;
             string dia;
@@ -214,7 +206,7 @@ void CmdInterface::processChoice(int choice) {
                 cout << "Ingrese el dia de la reservacion: ";
                 getline(cin, dia);
                 resultSearch = list1.findReservationByDate(mesa, dia);
-                cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
+                cout << "ï¿½Seguro que desea proseguir con la cancelacion? (s/n) ";
                 cin >> continueVar;
                 if (continueVar == 's' || continueVar == 'S') {
                 	resultDelete = list1.deleteReservation(resultSearch, cancelledList);
@@ -222,7 +214,7 @@ void CmdInterface::processChoice(int choice) {
 					break;
 				}
                 if(resultDelete == false) {
-                    cout << "La reservacion buscada no existe, ¿desea volver a intentar? (s/n) ";
+                    cout << "La reservacion buscada no existe, ï¿½desea volver a intentar? (s/n) ";
                     cin >> continueVar;
                     if(continueVar == 'n' || continueVar == 'N') {
                         break;
@@ -243,7 +235,6 @@ void CmdInterface::processChoice(int choice) {
 		}
 			
 		case 7: {
-			// LISTAR MESAS RESERVADAS
 		    if (list1.isEmpty()) {
 			    cout << "No hay reservaciones registradas." << endl;
 			    cout << "Presione ENTER para continuar...";

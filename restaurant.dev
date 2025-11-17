@@ -4,10 +4,10 @@ Name=Restaurant-Table-Reservations
 Type=1
 Ver=2
 ObjFiles=
-Includes=src;C:\Users\sist-jacosta\Documents\projects\ucla\nonumerica;src/cmd;src/domain
-Libs=
+Includes=./lib
+Libs=./lib
 PrivateResource=
-ResourceIncludes=
+ResourceIncludes=./lib
 MakeIncludes=
 Compiler=
 CppCompiler=
@@ -28,8 +28,8 @@ Folders=utils
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000000000000
-UnitCount=5
+CompilerSettings=00000000c0000000001000000
+UnitCount=7
 
 [VersionInfo]
 Major=1
@@ -61,7 +61,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=application.cpp
+FileName=db.hpp
 CompileCpp=1
 Folder=
 Compile=1
@@ -78,7 +78,7 @@ Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
 
 [Unit4]
 FileName=application.cpp
@@ -114,6 +114,16 @@ BuildCmd=
 FileName=utils\utility.cpp
 CompileCpp=1
 Folder=utils
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit7]
+FileName=db.cpp
+CompileCpp=1
+Folder=
 Compile=1
 Link=1
 Priority=1000

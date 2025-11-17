@@ -1,3 +1,5 @@
 *.o
 *.win
 *.exe
+restaurant.layout
+db.json
