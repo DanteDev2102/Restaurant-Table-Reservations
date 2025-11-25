@@ -21,4 +21,6 @@ class CmdInterface {
 		CmdInterface();
 		void updateFunction();
 		void deleteFunction();
+		
 };
+

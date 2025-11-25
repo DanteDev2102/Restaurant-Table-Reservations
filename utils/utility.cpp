@@ -85,7 +85,7 @@ bool checkReservationData(int table, int qty, string name, string dni, string da
 	return true;
 }
 
-int readIntergers(const string &message, int min, int max){
+int readIntegers(const string &message, int min, int max){
 	int value;
 	while(true){
 		cout << message;

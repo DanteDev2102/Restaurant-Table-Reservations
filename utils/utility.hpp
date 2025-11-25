@@ -19,7 +19,7 @@ void mostrarReservasPorDia(Reservations& lista, const string& diaBuscado);
 bool checkReservationData(int table, int qty, string name, string dni, string date);
 
 // Para lectura de datos de entrada
-int readIntergers(const string &message, int min, int max);
+int readIntegers(const string &message, int min, int max);
 string readAlphaString(const string &message);
 string readDNI(const string &message);
 bool isValidDay(const string &day);

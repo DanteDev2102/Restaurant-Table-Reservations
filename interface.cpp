@@ -48,11 +48,11 @@ void CmdInterface::processChoice(int choice) {
             int table, peopleQty;
             string name, dni, day;
 		    while (continuar == 's' || continuar == 'S') {
-		    	table = readIntergers("Numero de mesa: ", 1, tables);
+		    	table = readIntegers("Numero de mesa: ", 1, tables);
 		    	name = readAlphaString("Nombre del cliente: ");
 		    	dni = readDNI("Cedula del cliente (8 digitos): ");
 		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
-		    	peopleQty = readIntergers("Cantidad de personas (1-8): ", 1,8);
+		    	peopleQty = readIntegers("Cantidad de personas (1-8): ", 1,8);
 		    	
 		    	if(!list1.insertAtBeginning(table,peopleQty,name,dni,day)){
 		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
@@ -207,6 +207,7 @@ void CmdInterface::clearScreen() const {
 }
 
 void CmdInterface::updateFunction() {
+	int tables = app.getQtyTables();
 	int searchTable, table, peopleQty, selectionVar;
 	string searchDate, name, dni, day;
 	char continueVar = 's';
@@ -234,8 +235,9 @@ void CmdInterface::updateFunction() {
     }
 
     while(continueVar == 's' || continueVar == 'S') {
-        cout << "Reservacion encontrada!" << endl;
-        /*cout << "Ingrese la actualizacion a hacer para la reserva" << endl << endl;
+        cout << "Reservacion encontrada!" << endl << endl;
+        cout << "Dia de la reserva: " << resultSearch->getDate();
+        cout << "Ingrese la actualizacion a hacer para la reserva" << endl << endl;
         cout << "1: Dia y Mesa" << endl;
         cout << "2: Nombre y Cedula del Reservante" << endl;
         cout << "3: Cantidad de Personas de la Reserva" << endl;
@@ -245,62 +247,66 @@ void CmdInterface::updateFunction() {
         cin.ignore();
         
     	switch(selectionVar) {
-    		case 1: {
-    			table = readIntergers("Numero de mesa: ", 1, tables);
+    		case 1: { // Date and Table Update
+    			table = readIntegers("Numero de mesa: ", 1, tables);
 		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
-		    	name = *resultSearch.getName();
-		    	dni = *resultSearch.getDni();
-		    	day = *resultSearch.getDate();
+		    	name = resultSearch->getName();
+		    	dni = resultSearch->getDni();
+		    	peopleQty = resultSearch->getQty();
 		    	
 		    	if(!list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
 		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
 				} else {
-					cout << "Reservacion exitosa" << endl;
+					cout << "Actualizacion exitosa!" << endl;
 				}
 				break;
 			}
-			case 2: {
+			case 2: { // Name and DNI Update
 				name = readAlphaString("Nombre del cliente: ");
 		    	dni = readDNI("Cedula del cliente (8 digitos): ");
+		    	table = resultSearch->getTable();
+		    	peopleQty = resultSearch->getQty();
+				day = resultSearch->getDate();
+				
+		    	if(list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
+		    		cout << "Actualizacion exitosa!" << endl;
+				} else {
+					cout << "Ha surgido un error "<< endl;
+				}
+				break;
+			}
+			case 3: { // Quantity of People Attending Update
+				table = resultSearch->getTable();
+				peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
+				name = resultSearch->getName();
+		    	dni = resultSearch->getDni();
+		    	day = resultSearch->getDate();
+				
+				if(list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
+		    		cout << "Actualizacion exitosa!" << endl;
+				} else {
+					cout << "Ha surgido un error "<< endl;
+				}
+				break;
+			}
+			case 4: { // All update
+				table = readIntegers("Numero de mesa: ", 1, tables);
+		    	name = readAlphaString("Nombre del cliente: ");
+		    	dni = readDNI("Cedula del cliente (8 digitos): ");
+		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
+		    	peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
+		    	
 		    	if(!list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
 		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
 				} else {
-					cout << "Reservacion exitosa" << endl;
+					cout << "Actualizacion exitosa!" << endl;
 				}
 				break;
 			}
-			case 3: {
-				peopleQty = readIntergers("Cantidad de personas (1-8): ", 1, 8);
+			default: { // Anything else than 1 to 4
 				break;
 			}
-			case 4: {
-				
-				break;
-			}
-    		
-		}*/
-        cout << "Ingrese el nuevo numero de mesa: ";
-        cin >> mesa;
-        cin.ignore();
-        cout << "Ingrese el nuevo dia de la reservacion ";
-        getline(cin, dia);
-    	cout << "Cedula del cliente: ";
-        getline(cin, cedula);
-        cout << "Nombre del cliente: ";
-        getline(cin, nombre);
-        cout << "Cantidad de personas para la reserva: ";
-        cin >> cantPersonas;
-        bool resultUpdate;
-        resultUpdate = list1.updateReservation(resultSearch, table, peopleQty, name, dni, day);
-        if (resultUpdate == false) {
-            cout << "Surgio un error con los datos, ¿desea volver a intentar? (s/n)";
-            cin >> continueVar;
-            if (continueVar == 'n' || continueVar == 'N') {
-                break;
-            }
-            continue;
-        }
-        cout << "\nLa reservacion se ha actualizado con exito!";
+		}
         break;
     }
 }
