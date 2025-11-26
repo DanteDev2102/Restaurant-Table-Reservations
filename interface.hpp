@@ -21,6 +21,6 @@ class CmdInterface {
 		CmdInterface();
 		void updateFunction();
 		void deleteFunction();
-		
+		void showCancelledReservations();
 };
 
