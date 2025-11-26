@@ -42,7 +42,7 @@ void CmdInterface::processChoice(int choice) {
 		case 1:
 			app.configQtyTables();
 			break;
-		case 2:{		
+		case 2: {
             char continuar = 's';
             int tables = app.getQtyTables();
             int table, peopleQty;
@@ -64,8 +64,9 @@ void CmdInterface::processChoice(int choice) {
 		        cin >> continuar;
 		        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer
 		    }
+		    break;
 		}
-			break;
+			
 		case 3: {
 			if (list1.isEmpty()) {
 			    cout << "No hay reservaciones registradas." << endl;
@@ -116,10 +117,12 @@ void CmdInterface::processChoice(int choice) {
 			}
     		break;
 		}
+		
 		case 4: {
 			updateFunction();
 			break;
 		}
+		
 		case 5: {
 		    if (list1.isEmpty()) {
 		        cout << "No hay reservaciones registradas." << endl;
@@ -176,8 +179,11 @@ void CmdInterface::processChoice(int choice) {
 		    getline(cin, _tmp);
 		    break;
 		}
-
-
+		
+		case 8: {
+			showCancelledReservations();
+			break;
+		}
 
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
@@ -196,6 +202,7 @@ void CmdInterface::displayMenu() const {
     cout << "5. Reporte de Reservas" << endl;
     cout << "6. Cancelar Reserva" << endl;
     cout << "7. Listar Mesas Reservadas" << endl;
+    cout << "8. Listar Reservas Canceladas" << endl;
     cout << "0. Salir" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "Ingrese su opcion" << endl;
@@ -235,12 +242,12 @@ void CmdInterface::updateFunction() {
     }
 
     while(continueVar == 's' || continueVar == 'S') {
-        cout << "Reservacion encontrada!" << endl << endl;
-        cout << "Dia de la reserva: " << resultSearch->getDate();
-        cout << "Ingrese la actualizacion a hacer para la reserva" << endl << endl;
-        cout << "1: Dia y Mesa" << endl;
-        cout << "2: Nombre y Cedula del Reservante" << endl;
-        cout << "3: Cantidad de Personas de la Reserva" << endl;
+        cout << "Reservacion encontrada!" << endl;
+        cout << "-------------------------" << endl;
+        cout << "Ingrese la actualizacion a hacer para la reserva" << endl;
+        cout << "1: Dia y Mesa de la reserva" << endl;
+        cout << "2: Nombre y Cedula del reservante" << endl;
+        cout << "3: Cantidad de Personas de la reserva" << endl;
         cout << "4: Toda informacion de la reserva" << endl;
         cout << "Otro: Salir" << endl;
         cin >> selectionVar;
@@ -289,7 +296,7 @@ void CmdInterface::updateFunction() {
 				}
 				break;
 			}
-			case 4: { // All update
+			case 4: { // Update all
 				table = readIntegers("Numero de mesa: ", 1, tables);
 		    	name = readAlphaString("Nombre del cliente: ");
 		    	dni = readDNI("Cedula del cliente (8 digitos): ");
@@ -349,4 +356,31 @@ void CmdInterface::deleteFunction() {
     	getline(cin, _tmp);
         break;
     }
+}
+void CmdInterface::showCancelledReservations() {
+	if (!cancelledList.isEmpty()) {
+		int total = cancelledList.getCount();
+		cout << "----- Total Reservas Canceladas (" << total << ") -----" << endl;
+		cout << "----- Lista de Reservas Canceladas -----" << endl;
+		
+		Reservation* p = cancelledList.getFirst();
+		while (p != nullptr) {
+		    cout << "----------Reservacion------------" << endl;
+		    cout << "Numero de mesa: " << p->getTable() << endl;
+		    cout << "Nombre del cliente: " << p->getName() << endl;
+		    cout << "Cedula del cliente: " << p->getDni() << endl;
+		    cout << "Dia de la reserva: " << p->getDate() << endl;
+		    cout << "Cantidad de personas: " << p->getQty() << endl;
+		    p = p->getNext();
+		}
+		
+		cout << "------------------------------" << endl;
+		cout << "Presione ENTER para continuar...";
+		string _tmp;
+		getline(cin, _tmp);
+	} else {
+		cout << "No hay reservaciones canceladas." << endl;
+		cout << "Presione ENTER para continuar...";
+		string _tmp; getline(cin, _tmp);
+	}
 }
