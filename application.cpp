@@ -1,5 +1,5 @@
 #include "application.hpp"
-
+#include "utils/utility.hpp"
 using namespace std;
 
 Application::Application(int qty): qtyTables(qty), db(new Database("db.json")) {}
@@ -35,4 +35,30 @@ void Application::configQtyTables() {
 	}
 	
 	cout << "Se configuraron " << qty << " mesas en el restaurante." << endl;
+}
+
+bool Application::createReservation(int table, int qty, const std::string& name, const std::string& dni, const std::string& day) {
+	
+	// 1- Crear objeto json 
+	json reservationData;
+	reservationData["table"] = table;
+	reservationData["name"] = name;
+	reservationData["dni"] = dni;
+	reservationData["date"] = toLower(day);
+	reservationData["qty"] = qty;
+	
+	// 2- Crear clave unica: mesa-dia
+	std::string id = std::to_string(table) + "_" + toLower(day);
+	
+	// 3- Tratar de guardar en DB
+	if(db->createRecord("reservations", id, reservationData))
+	{
+		// 4- Si se guardo -> retornar true
+		return true;
+	} 
+	else 
+	{
+		// 5- No se guardo -> Informar error 
+		return false;
+	}
 }

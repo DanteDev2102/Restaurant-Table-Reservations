@@ -47,6 +47,7 @@ void CmdInterface::processChoice(int choice) {
             int tables = app.getQtyTables();
             int table, peopleQty;
             string name, dni, day;
+            
 		    while (continuar == 's' || continuar == 'S') {
 		    	table = readIntegers("Numero de mesa: ", 1, tables);
 		    	name = readAlphaString("Nombre del cliente: ");
@@ -54,13 +55,17 @@ void CmdInterface::processChoice(int choice) {
 		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
 		    	peopleQty = readIntegers("Cantidad de personas (1-8): ", 1,8);
 		    	
-		    	if(!list1.insertAtBeginning(table,peopleQty,name,dni,day)){
-		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
+		    	if(app.createReservation(table, peopleQty, name, dni, day))
+		    	{
+		    		if(list1.insertAtBeginning(table,peopleQty,name,dni,day)){
+		    			cout <<"Reservacion exitosa"<<endl;
+					} else{
+						cout << "Error: Memoria llena"<< endl;
+					}
 				} else{
-					cout <<"Reservacion exitosa"<<endl;
+					cout << "Error: Ya existe una reserva para esa mesa en ese dia."<< endl;
 				}
-		
-		        cout << "\¿Desea agregar otra reserva? (s/n): ";
+		        cout << "¿Desea agregar otra reserva? (s/n): ";
 		        cin >> continuar;
 		        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer
 		    }
