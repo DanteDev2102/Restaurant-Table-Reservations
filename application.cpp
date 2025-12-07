@@ -35,9 +35,10 @@ void Application::configQtyTables() {
 	}
 	
 	cout << "Se configuraron " << qty << " mesas en el restaurante." << endl;
+
 }
 
-void Application::updateFunction(Reservations& reservationList){
+void Application::updateFunction(Reservations& reservationList) {
 	int tables = getQtyTables();
 	int searchTable, table, peopleQty, selectionVar;
 	string searchDate, name, dni, day;
@@ -53,14 +54,14 @@ void Application::updateFunction(Reservations& reservationList){
 	getline(cin, searchDate);
 	resultSearch = reservationList.findReservationByDate(searchTable, searchDate);
 	if(resultSearch == nullptr) {
-	cout << "La reservacion buscada no existe" << endl;
-	cout << "¿Desea continuar? (s/n) " << endl;
-	cin >> continueVar;
-	cin.ignore();
-	if (continueVar == 'n' || continueVar == 'N') {
-	    break;
-	}
-	    continue;
+		cout << "La reservacion buscada no existe" << endl;
+		cout << "¿Desea continuar? (s/n) " << endl;
+		cin >> continueVar;
+		cin.ignore();
+		if (continueVar == 'n' || continueVar == 'N') {
+		    break;
+		}
+		continue;
 	}
 	break;
 	}
@@ -84,7 +85,8 @@ void Application::updateFunction(Reservations& reservationList){
 				name = resultSearch->getName();
 				dni = resultSearch->getDni();
 				peopleQty = resultSearch->getQty();
-				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);	
+				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
+
 				if(resultUpdate) {
 					cout << "Actualizacion exitosa!" << endl;
 				} else {
@@ -98,7 +100,8 @@ void Application::updateFunction(Reservations& reservationList){
 				table = resultSearch->getTable();
 				peopleQty = resultSearch->getQty();
 				day = resultSearch->getDate();
-				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);	
+				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
+				
 				if(resultUpdate) {
 					cout << "Actualizacion exitosa!" << endl;
 				} else {
@@ -112,7 +115,8 @@ void Application::updateFunction(Reservations& reservationList){
 				name = resultSearch->getName();
 				dni = resultSearch->getDni();
 				day = resultSearch->getDate();	
-				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);	
+				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
+				
 				if(resultUpdate) {
 					cout << "Actualizacion exitosa!" << endl;
 				} else {
@@ -126,7 +130,8 @@ void Application::updateFunction(Reservations& reservationList){
 				dni = readDNI("Cedula del cliente (8 digitos): ");
 				day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
 				peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
-				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);	
+				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
+				
 				if(resultUpdate) {
 					cout << "Actualizacion exitosa!" << endl;
 				} else {
@@ -144,26 +149,25 @@ void Application::updateFunction(Reservations& reservationList){
 
 void Application::deleteFunction(Reservations& reservationList, Reservations& cancelledList) {
 	char continueVar = 's';
-	int mesa;
-	string dia;
+	int table;
+	string day;
 	Reservation* resultSearch;
 	bool resultDelete;
+	int tables = getQtyTables();
 	
 	while (continueVar == 's' || continueVar == 'S') {
-	cout << "Ingrese la mesa de la reservacion: ";
-	cin >> mesa;
-	cin.ignore();
-	cout << "Ingrese el dia de la reservacion: ";
-	getline(cin, dia);
+	table = readIntegers("Numero de mesa a actualizar: ", 1, tables);
+	day = readValidDay("Dia de la mesa a actualizar: ");
 	resultSearch = reservationList.findReservationByDate(mesa, dia);
 	cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
 	cin >> continueVar;
 
 	if (continueVar == 's' || continueVar == 'S') {
 		resultDelete = reservationList.deleteReservation(resultSearch, cancelledList);
-		} else {
-			break;
-		}
+	} else {
+		break;
+	}
+	
 	if(resultDelete == false) {
 		cout << "La reservacion buscada no existe, ¿desea volver a intentar? (s/n) ";
 		cin >> continueVar;
@@ -171,7 +175,7 @@ void Application::deleteFunction(Reservations& reservationList, Reservations& ca
 			break;
 		}
 		continue;
-		}
+	}
 
 	cout << "Reservacion cancelada exitosamente" << endl;
 	Reservation* puntero = cancelledList.getFirst();
@@ -184,6 +188,7 @@ void Application::deleteFunction(Reservations& reservationList, Reservations& ca
 	break;
 	}
 }
+
 void Application::showCancelledReservations(Reservations& cancelledList) {
 	if (!cancelledList.isEmpty()) {
 		int total = cancelledList.getCount();
