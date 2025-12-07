@@ -19,5 +19,6 @@ class Application {
 		void updateFunction(Reservations& reservationList);
 		void deleteFunction(Reservations& reservationList, Reservations& cancelledList);
 		void showCancelledReservations(Reservations& cancelledList);
+		json parseToJson(const int& table, const std::string& name, const std::string& dni, const std::string& date, const int& qty);
 	
 };

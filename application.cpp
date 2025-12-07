@@ -44,7 +44,8 @@ void Application::updateFunction(Reservations& reservationList) {
 	string searchDate, name, dni, day;
 	char continueVar = 's';
 	Reservation* resultSearch;
-	bool resultUpdate;
+	bool resultUpdate = false;
+	bool updateRecordResult;
 
 	while(continueVar == 's' || continueVar == 'S') {
 	cout << "Ingrese la mesa reservacion a actualizar: ";
@@ -143,6 +144,20 @@ void Application::updateFunction(Reservations& reservationList) {
 				break;
 			}
 		}
+		if(resultUpdate) {
+			json reservationData = parseToJson(table, name, dni, day, peopleQty);
+			std::string* id = new std::string;
+			*id = std::to_string(table) + "_" + toLower(day);
+
+			updateRecordResult = db->updateRecord("reservations", *id, reservationData);
+
+			if(updateRecordResult) {
+				cout << "Actualizacion guardada en base de datos" << endl;
+			} else {
+				std::cerr << "Error al momento de actualizar en base de datos" << endl;
+			}
+			delete id;
+		}
 	break;
 	}
 }
@@ -150,42 +165,55 @@ void Application::updateFunction(Reservations& reservationList) {
 void Application::deleteFunction(Reservations& reservationList, Reservations& cancelledList) {
 	char continueVar = 's';
 	int table;
-	string day;
+	string date;
 	Reservation* resultSearch;
-	bool resultDelete;
+	bool resultDelete, recordDeleteResult;
 	int tables = getQtyTables();
 	
 	while (continueVar == 's' || continueVar == 'S') {
-	table = readIntegers("Numero de mesa a actualizar: ", 1, tables);
-	day = readValidDay("Dia de la mesa a actualizar: ");
-	resultSearch = reservationList.findReservationByDate(mesa, dia);
-	cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
-	cin >> continueVar;
-
-	if (continueVar == 's' || continueVar == 'S') {
-		resultDelete = reservationList.deleteReservation(resultSearch, cancelledList);
-	} else {
-		break;
-	}
-	
-	if(resultDelete == false) {
-		cout << "La reservacion buscada no existe, ¿desea volver a intentar? (s/n) ";
+		table = readIntegers("Numero de mesa a actualizar: ", 1, tables);
+		date = readValidDay("Dia de la mesa a actualizar: ");
+		resultSearch = reservationList.findReservationByDate(table, date);
+		cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
 		cin >> continueVar;
-		if(continueVar == 'n' || continueVar == 'N') {
+	
+		if (continueVar == 's' || continueVar == 'S') {
+			resultDelete = reservationList.deleteReservation(resultSearch, cancelledList);
+		} else {
 			break;
 		}
-		continue;
-	}
+		
+		if(resultDelete == false) {
+			cout << "La reservacion buscada no existe, ¿desea volver a intentar? (s/n) ";
+			cin >> continueVar;
+			if(continueVar == 'n' || continueVar == 'N') {
+				break;
+			}
+			continue;
+		}
+	
+		cout << "Reservacion cancelada exitosamente" << endl;
+		Reservation* puntero = cancelledList.getFirst();
+		cout << "Reservacion cancelada: mesa: [" << puntero->getTable() << "]. Del dia: " << puntero->getDate() << endl;
+		cout << "------------------------------" << endl;
+	
+		// Delete record from db
+		std::string* id = new std::string;
+		*id = std::to_string(table) + "_" + toLower(date);
+	
+		recordDeleteResult = db->deleteRecord("reservations", *id);
+		if(recordDeleteResult) {
+			cout << "Borrado exitoso en la base de datos" << endl;
+		} else {
+			cerr << "Ha surgido un error en el borrado en la base de datos" << endl;
+		}
+		delete id;
 
-	cout << "Reservacion cancelada exitosamente" << endl;
-	Reservation* puntero = cancelledList.getFirst();
-	cout << "Reservacion cancelada: mesa: [" << puntero->getTable() << "]. Del dia: " << puntero->getDate() << endl;
-	cout << "------------------------------" << endl;
-	cout << "Presione ENTER para continuar...";
-	cin.ignore();
-	string _tmp;
-	getline(cin, _tmp);
-	break;
+		cout << "Presione ENTER para continuar...";
+		cin.ignore();
+		string _tmp;
+		getline(cin, _tmp);
+		break;
 	}
 }
 
@@ -215,4 +243,16 @@ void Application::showCancelledReservations(Reservations& cancelledList) {
 		cout << "Presione ENTER para continuar...";
 		string _tmp; getline(cin, _tmp);
 	}
+}
+
+json Application::parseToJson(const int& table, const std::string& name, const std::string& dni, const std::string& date, const int& qty) {
+	json reservationData;
+
+	reservationData["table"] = table;
+	reservationData["name"] = name;
+	reservationData["dni"] = dni;
+	reservationData["date"] = date;
+	reservationData["qty"] = qty;
+
+	return reservationData;
 }
