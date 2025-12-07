@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "utils/utility.hpp"
 
 #include "reservation.hpp"
 #include "db.hpp"
@@ -15,4 +16,8 @@ class Application {
 		void setQtyTables (int qty);
 		int getQtyTables();
 		void configQtyTables();
+		void updateFunction(Reservations& reservationList);
+		void deleteFunction(Reservations& reservationList, Reservations& cancelledList);
+		void showCancelledReservations(Reservations& cancelledList);
+	
 };
