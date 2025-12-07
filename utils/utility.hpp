@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <limits>
 #include "../reservation.hpp"
 
 using namespace std;
