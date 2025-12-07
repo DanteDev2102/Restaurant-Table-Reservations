@@ -32,9 +32,6 @@ bool Reservations::full(){
 }
 
 Reservation* Reservations::findReservationByDate(int table, string date) {
-    if(table < 1) {
-        return nullptr;
-    }
     Reservation* p = getFirst();
     while(p != nullptr) {
         if(p->getTable() == table && toLower(p->getDate()) == toLower(date)) {
@@ -49,14 +46,12 @@ Reservation* Reservations::findReservationByDate(int table, string date) {
 bool Reservations::insertAtBeginning(int table, int qty, string name, string dni, string date){
 	// 1 - Verificamos si hay espacio en memoria
 	if(!full()){
-		ptr p = first;
-			// 2 - Una misma mesa no puede ser reservada por dos clientes diferentes el mismo dia
-		while(p != nullptr){
-			if(p->getTable() == table && toLower(p->getDate()) == toLower(date)){
-					return false;
-			}
-			p = p->next;
+		
+		// 2 - Una misma mesa no puede ser reservada por dos clientes diferentes el mismo dia
+		if(findReservationByDate(table, date) != nullptr) {
+			return false;
 		}
+
 		// 3 - Creamos nueva reserva e insertamos al inicio si se pasan todas las verificaciones
 		Reservation* newNode = new Reservation(table, qty, name, dni, date);
 		newNode->next = first;
