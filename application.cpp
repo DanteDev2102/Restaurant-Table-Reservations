@@ -48,22 +48,20 @@ void Application::updateFunction(Reservations& reservationList) {
 	bool updateRecordResult;
 
 	while(continueVar == 's' || continueVar == 'S') {
-	cout << "Ingrese la mesa reservacion a actualizar: ";
-	cin >> searchTable;
-	cin.ignore();
-	cout << "\nIngrese el dia de la reservacion a actualizar: ";
-	getline(cin, searchDate);
-	resultSearch = reservationList.findReservationByDate(searchTable, searchDate);
-	if(resultSearch == nullptr) {
-		cout << "La reservacion buscada no existe" << endl;
-		cout << "¿Desea continuar? (s/n) " << endl;
-		cin >> continueVar;
-		cin.ignore();
-		if (continueVar == 'n' || continueVar == 'N') {
-		    break;
-		}
+		searchTable = readIntegers("Ingrese el numero de mesa asociado a la reservacion: ", 1, tables);
+		searchDate = readValidDay("Ingrese el dia de la reservacion a actualizar: ");
+
+		resultSearch = reservationList.findReservationByDate(searchTable, searchDate);
+		if(resultSearch == nullptr) {
+			cout << "La reservacion buscada no existe" << endl;
+			cout << "¿Desea continuar? (s/n) " << endl;
+			cin >> continueVar;
+			cin.ignore();
+			if (continueVar == 'n' || continueVar == 'N') {
+			    break;
+			}
 		continue;
-	}
+		}
 	break;
 	}
 
@@ -71,6 +69,7 @@ void Application::updateFunction(Reservations& reservationList) {
 		cout << "\nReservacion encontrada!" << endl;
 		cout << "-------------------------" << endl;
 		cout << "Ingrese la actualizacion a hacer para la reserva" << endl;
+		cout << "-------------------------" << endl;
 		cout << "1: Dia y Mesa de la reserva" << endl;
 		cout << "2: Nombre y Cedula del reservante" << endl;
 		cout << "3: Cantidad de Personas de la reserva" << endl;
