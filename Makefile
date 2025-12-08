@@ -7,7 +7,7 @@ CXX = g++
 #  -g Add debug information (for dev only)
 #  -I. Look for header files in the current directory
 #
-CXXFLAGS = -std=c++11 -Wall -g -I.
+CXXFLAGS = -std=c++11 -Wall -I.
 
 # Source files
 # Check in root and utils subdirectory for .cpp
