@@ -42,7 +42,7 @@ void CmdInterface::processChoice(int choice) {
 		case 1:
 			app.configQtyTables();
 			break;
-		case 2:{		
+		case 2: {
             char continuar = 's';
             int tables = app.getQtyTables();
             int table, peopleQty;
@@ -69,8 +69,9 @@ void CmdInterface::processChoice(int choice) {
 		        cin >> continuar;
 		        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer
 		    }
+		    break;
 		}
-			break;
+			
 		case 3: {
 			if (list1.isEmpty()) {
 			    cout << "No hay reservaciones registradas." << endl;
@@ -121,10 +122,12 @@ void CmdInterface::processChoice(int choice) {
 			}
     		break;
 		}
+		
 		case 4: {
-			updateFunction();
+			app.updateFunction(list1);
 			break;
 		}
+		
 		case 5: {
 		    if (list1.isEmpty()) {
 		        cout << "No hay reservaciones registradas." << endl;
@@ -147,7 +150,7 @@ void CmdInterface::processChoice(int choice) {
 
 
 		case 6: {
-			deleteFunction();
+			app.deleteFunction(list1, cancelledList);
 			break;
 		}
 			
@@ -181,8 +184,11 @@ void CmdInterface::processChoice(int choice) {
 		    getline(cin, _tmp);
 		    break;
 		}
-
-
+		
+		case 8: {
+			app.showCancelledReservations(cancelledList);
+			break;
+		}
 
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
@@ -201,6 +207,7 @@ void CmdInterface::displayMenu() const {
     cout << "5. Reporte de Reservas" << endl;
     cout << "6. Cancelar Reserva" << endl;
     cout << "7. Listar Mesas Reservadas" << endl;
+    cout << "8. Listar Reservas Canceladas" << endl;
     cout << "0. Salir" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "Ingrese su opcion" << endl;
@@ -209,149 +216,4 @@ void CmdInterface::displayMenu() const {
 void CmdInterface::clearScreen() const {
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	std::system("cls"); 
-}
-
-void CmdInterface::updateFunction() {
-	int tables = app.getQtyTables();
-	int searchTable, table, peopleQty, selectionVar;
-	string searchDate, name, dni, day;
-	char continueVar = 's';
-	Reservation* resultSearch;
-    bool resultUpdate;
-
-    while(continueVar == 's' || continueVar == 'S') {
-        cout << "Ingrese la mesa reservacion a actualizar: ";
-        cin >> searchTable;
-        cin.ignore();
-        cout << "\nIngrese el dia de la reservacion a actualizar: ";
-        getline(cin, searchDate);
-        resultSearch = list1.findReservationByDate(searchTable, searchDate);
-        if(resultSearch == nullptr) {
-            cout << "La reservacion buscada no existe" << endl;
-            cout << "¿Desea continuar? (s/n) " << endl;
-            cin >> continueVar;
-            cin.ignore();
-            if (continueVar == 'n' || continueVar == 'N') {
-                break;
-            }
-            continue;
-        }
-        break;
-    }
-
-    while(continueVar == 's' || continueVar == 'S') {
-        cout << "Reservacion encontrada!" << endl << endl;
-        cout << "Dia de la reserva: " << resultSearch->getDate();
-        cout << "Ingrese la actualizacion a hacer para la reserva" << endl << endl;
-        cout << "1: Dia y Mesa" << endl;
-        cout << "2: Nombre y Cedula del Reservante" << endl;
-        cout << "3: Cantidad de Personas de la Reserva" << endl;
-        cout << "4: Toda informacion de la reserva" << endl;
-        cout << "Otro: Salir" << endl;
-        cin >> selectionVar;
-        cin.ignore();
-        
-    	switch(selectionVar) {
-    		case 1: { // Date and Table Update
-    			table = readIntegers("Numero de mesa: ", 1, tables);
-		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
-		    	name = resultSearch->getName();
-		    	dni = resultSearch->getDni();
-		    	peopleQty = resultSearch->getQty();
-		    	
-		    	if(!list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
-		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
-				} else {
-					cout << "Actualizacion exitosa!" << endl;
-				}
-				break;
-			}
-			case 2: { // Name and DNI Update
-				name = readAlphaString("Nombre del cliente: ");
-		    	dni = readDNI("Cedula del cliente (8 digitos): ");
-		    	table = resultSearch->getTable();
-		    	peopleQty = resultSearch->getQty();
-				day = resultSearch->getDate();
-				
-		    	if(list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
-		    		cout << "Actualizacion exitosa!" << endl;
-				} else {
-					cout << "Ha surgido un error "<< endl;
-				}
-				break;
-			}
-			case 3: { // Quantity of People Attending Update
-				table = resultSearch->getTable();
-				peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
-				name = resultSearch->getName();
-		    	dni = resultSearch->getDni();
-		    	day = resultSearch->getDate();
-				
-				if(list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
-		    		cout << "Actualizacion exitosa!" << endl;
-				} else {
-					cout << "Ha surgido un error "<< endl;
-				}
-				break;
-			}
-			case 4: { // All update
-				table = readIntegers("Numero de mesa: ", 1, tables);
-		    	name = readAlphaString("Nombre del cliente: ");
-		    	dni = readDNI("Cedula del cliente (8 digitos): ");
-		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
-		    	peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
-		    	
-		    	if(!list1.updateReservation(resultSearch, table, peopleQty, name, dni, day)) {
-		    		cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
-				} else {
-					cout << "Actualizacion exitosa!" << endl;
-				}
-				break;
-			}
-			default: { // Anything else than 1 to 4
-				break;
-			}
-		}
-        break;
-    }
-}
-void CmdInterface::deleteFunction() {
-	char continueVar = 's';
-    int mesa;
-    string dia;
-    Reservation* resultSearch;
-    bool resultDelete;
-
-    while (continueVar == 's' || continueVar == 'S') {
-        cout << "Ingrese la mesa de la reservacion: ";
-        cin >> mesa;
-        cin.ignore();
-        cout << "Ingrese el dia de la reservacion: ";
-        getline(cin, dia);
-        resultSearch = list1.findReservationByDate(mesa, dia);
-        cout << "¿Seguro que desea proseguir con la cancelacion? (s/n) ";
-        cin >> continueVar;
-        if (continueVar == 's' || continueVar == 'S') {
-        	resultDelete = list1.deleteReservation(resultSearch, cancelledList);
-		} else {
-			break;
-		}
-        if(resultDelete == false) {
-            cout << "La reservacion buscada no existe, ¿desea volver a intentar? (s/n) ";
-            cin >> continueVar;
-            if(continueVar == 'n' || continueVar == 'N') {
-                break;
-            }
-            continue;
-        }
-        cout << "Reservacion cancelada exitosamente" << endl;
-        Reservation* puntero = cancelledList.getFirst();
-        cout << "Reservacion cancelada: mesa: [" << puntero->getTable() << "]. Del dia: " << puntero->getDate() << endl;
-        cout << "------------------------------" << endl;
-    	cout << "Presione ENTER para continuar...";
-    	cin.ignore();
-    	string _tmp;
-    	getline(cin, _tmp);
-        break;
-    }
 }

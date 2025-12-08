@@ -19,8 +19,6 @@ class CmdInterface {
 	public:
 		void run ();
 		CmdInterface();
-		void updateFunction();
-		void deleteFunction();
-		
+
 };
 
