@@ -24,7 +24,7 @@ void Application::configQtyTables() {
 	
 	setQtyTables(qty);
 	
-	for (int i = 0; i < qtyTables; i++) {
+	/*for (int i = 0; i < qtyTables; i++) {
 		int tableNumber = i + 1;
 		
 		json tableData;
@@ -32,7 +32,7 @@ void Application::configQtyTables() {
         tableData["available"] = true; 
         
 		db->createRecord("tables", std::to_string(tableNumber), tableData);
-	}
+	}*/
 	
 	cout << "Se configuraron " << qty << " mesas en el restaurante." << endl;
 
@@ -280,4 +280,44 @@ bool Application::createReservation(int table, int qty, const std::string& name,
 		// 5- No se guardo -> Informar error 
 		return false;
 	}
+}
+
+void Application::startupLoad(Reservations& reservationList) {
+	json reservations, reservationData;
+	reservations = db->readTable("reservations");
+	if(reservations.size() == 0) {
+		return;
+	}
+	try {
+		for(auto it = reservations.begin(); it != reservations.end(); it++) {
+			int *table = new int; 
+			int *qty = new int;
+			std::string *name = new std::string;
+			std::string *dni = new std::string;
+			std::string *date = new std::string;
+			std::string *id = new string;
+			*id = it.key();	
+			
+			reservationData = db->readRecord("reservations", *id);
+			*table = reservationData["table"].get<int>();
+			*qty = reservationData["qty"].get<int>();
+			*name = reservationData["name"].get<std::string>();
+			*dni = reservationData["dni"].get<std::string>();
+			*date = reservationData["date"].get<std::string>();
+			
+			reservationList.insertAtBeginning(*table, *qty, *name, *dni, *date);
+			delete table;
+			delete qty;
+			delete name;
+			delete dni;
+			delete date;
+			delete id;
+
+		}
+	}
+	catch (std::exception& e) { // catch any error it may arise
+	cout << e.what();
+	}
+
+	cout << "Se ha finalizado la carga de datos a la memoria!" << endl << endl;
 }

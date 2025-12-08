@@ -13,6 +13,7 @@ using namespace std;
 CmdInterface::CmdInterface() : app(30) {}
 
 void CmdInterface::run() {
+	app.startupLoad(list1);
 	int choice = -1;
 	
 	while (choice != 0) {
