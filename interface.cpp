@@ -10,7 +10,9 @@
 
 using namespace std;
 
-CmdInterface::CmdInterface() : app(30) {}
+CmdInterface::CmdInterface() : app(30) {
+	app.loadReservations(list1);
+}
 
 void CmdInterface::run() {
 	int choice = -1;
