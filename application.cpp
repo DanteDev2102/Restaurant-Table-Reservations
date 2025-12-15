@@ -281,3 +281,34 @@ bool Application::createReservation(int table, int qty, const std::string& name,
 		return false;
 	}
 }
+
+void Application::loadReservations(Reservations& reservationList) {
+    
+    json reservationsTable = db->readTable("reservations");
+    
+    if (reservationsTable.empty()) {
+        std::cout << "Informacion: No hay reservas registradas en la base de datos." << std::endl;
+        return;
+    }
+    
+    try {
+    	    
+    	for (auto& item : reservationsTable.items()) {
+        	const json& reservationData = item.value();
+        
+        	int table = reservationData.value("table", 0);
+        	int qty = reservationData.value("qty", 0);
+        	std::string name = reservationData.value("name", "");
+        	std::string dni = reservationData.value("dni", "");
+        	std::string date = reservationData.value("date", "");
+        
+            reservationList.insertAtBeginning(table, qty, name, dni, date);
+    	}
+    	
+	} catch ( std::exception& e) {
+		cout << "Error al cargar reservas: "<< e.what() << endl;
+	}
+
+    
+    std::cout << "Informacion: Reservas cargadas desde la base de datos." << std::endl;
+}
