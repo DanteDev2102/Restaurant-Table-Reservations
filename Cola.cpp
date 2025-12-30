@@ -61,20 +61,26 @@ void Cola<T>::borrarCola() {
 template <typename T>
 void Cola<T>::mostrarCola() {
     if (colaVacia()) {
-        cout << "La cola de espera esta vacia." << endl;
+        cout << "\n[!] La cola de espera esta vacia." << endl;
         return;
     }
 
     NodoCola<T>* aux = frente;
-    cout << "\n--- PERSONAS EN ESPERA ---" << endl;
-    int i = 1;
+    int turno = 1;
+    
+    cout << "\n===== LISTA DE ESPERA (COLA) =====" << endl;
+    
     while (aux != NULL) {
-        // Accedemos a los campos del struct DatosCola (dni, name)
-        cout << i << ". [" << aux->dato.dni << "] " << aux->dato.name << endl;
+        // Estilo visual tipo bloque solicitado
+        cout << "---------- Cliente en Espera ------------" << endl;
+        cout << "Turno en cola       : " << turno << endl;
+        cout << "Nombre del Cliente  : " << aux->dato.name << endl;
+        cout << "Cedula del Cliente  : " << aux->dato.dni << endl;
+        cout << "Telefono contacto   : " << aux->dato.phone << endl;
+        
         aux = aux->next;
-        i++;
+        turno++;
     }
-    cout << "--------------------------" << endl;
+    cout << "-----------------------------------------" << endl;
 }
-
 #endif

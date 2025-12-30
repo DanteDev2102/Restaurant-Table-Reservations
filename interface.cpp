@@ -10,7 +10,7 @@
 
 using namespace std;
 
-CmdInterface::CmdInterface() : app(30) {
+CmdInterface::CmdInterface() : app(0) {
 	app.loadReservations(list1);
 }
 
@@ -196,67 +196,69 @@ void CmdInterface::processChoice(int choice) {
 		}
 		
 		case 9: {
-            // Declaración de variables locales
-            string dni, name, phone;
-            int hayMesa;
-            
             cout << "\n--- REGISTRO DE CLIENTE EN PUERTA ---" << endl;
-            cout << "Ingrese DNI: "; cin >> dni;
-            cout << "Ingrese Nombre: "; cin.ignore(); getline(cin, name);
-            cout << "Ingrese Telefono: "; cin >> phone; 
 
-            cout << "¿Hay mesa disponible ahora mismo? (1: Si / 0: No): ";
-            cin >> hayMesa;
+            // 1. VALIDACIÓN: ¿Existen mesas configuradas?
+            int maxMesas = app.getQtyTables();
+            if (maxMesas == 0) {
+                cout << "[!] ERROR: No se han configurado las mesas." << endl;
+                cout << "    Configure las mesas en la opcion 1 primero." << endl;
+                cout << "Presione ENTER para continuar...";
+                string _tmp; getline(cin, _tmp);
+                break; 
+            }
 
-            // --- VALIDACIÓN DE MESAS ---
+            // 2. Variables para los datos
+            string dni, name, phone;
+            int numMesa = 0;
+            
+            // 3. Pregunta Inicial
+            int hayMesa = readIntegers("¿Hay mesa disponible ahora mismo? (1: Si / 0: No): ", 0, 1);
+
             if (hayMesa == 1) {
-                // 1. Preguntamos a la App cuántas mesas existen realmente
-                int maxMesas = app.getQtyTables();
+                // --- CAMINO A: SE VA A SENTAR ---
+                // Validamos la mesa antes de pedir datos
+                numMesa = readIntegers("Asigne numero de mesa (1 - " + to_string(maxMesas) + "): ", 1, maxMesas);
                 
-                if (maxMesas == 0) {
-                    cout << "\n[!] ALERTA: No se han configurado las mesas en el sistema." << endl;
-                    cout << ">> No se puede asignar mesa. Redirigiendo a la COLA..." << endl;
-                    hayMesa = 0; // Forzamos el envío a la cola
-                } 
-                else {
-                    int numMesa;
-                    bool mesaValida = false;
-                    
-                    // 2. Bucle para obligar a poner una mesa real
-                    do {
-                        cout << "Asigne numero de mesa (1 - " << maxMesas << "): ";
-                        cin >> numMesa;
-                        
-                        if (numMesa >= 1 && numMesa <= maxMesas) {
-                            mesaValida = true;
-                        } else {
-                            cout << ">> Error: La mesa " << numMesa << " no existe. Intente de nuevo." << endl;
-                        }
-                    } while (!mesaValida);
+                // Pedimos datos validados
+                cout << "\n>> Datos del Cliente para la Mesa " << numMesa << ":" << endl;
+                dni = readDNI("Ingrese Cedula (Solo numeros): ");
+                name = readAlphaString("Ingrese Nombre: ");
+                cout << "Ingrese Telefono: "; cin >> phone; 
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                    // 3. Si llegamos aqui, la mesa es valida. Sentamos al cliente.
-                    // CAMINO A (Líder / Clients.cpp)
-                    Client clienteNuevo(dni, name, numMesa, "Hoy");
+                // Creamos el objeto para el Líder
+                Client clienteNuevo(dni, name, numMesa, "Hoy");
 
-                    if (clientsList.enqueue(clienteNuevo)) {
-                        cout << ">> EXITO: Cliente registrado y sentado en mesa " << numMesa << "." << endl;
-                    } else {
-                        cout << ">> Error critico: La memoria para clientes esta llena." << endl;
-                    }
+                if (clientsList.enqueue(clienteNuevo)) {
+                    cout << ">> EXITO: Cliente registrado y sentado." << endl;
+                } else {
+                    cout << ">> Error: Memoria llena en lista de clientes." << endl;
                 }
-            }
 
-            // Usamos un if separado por si la validación de arriba forzó hayMesa = 0
-            if (hayMesa == 0) {
-                // CAMINO B (Tu Cola / cola.hpp)
-                DatosCola paquete;
-                paquete.dni = dni;
-                paquete.name = name;
-                paquete.phone = phone; 
+            } else {
+                // --- CAMINO B: SE VA A LA COLA ---
+                cout << "\n>> Restaurante Lleno. Datos para la Lista de Espera:" << endl;
                 
-                colaEspera.insertar(paquete);
-                cout << ">> Restaurante lleno (o sin mesas). Cliente enviado a la COLA DE ESPERA." << endl;
+                dni = readDNI("Ingrese Cedula (Solo numeros): ");
+                name = readAlphaString("Ingrese Nombre: ");
+                cout << "Ingrese Telefono: "; cin >> phone;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                // --- AQUÍ ESTÁ EL CAMBIO DE NOMBRE ---
+                DatosCola waitingClient;         // Antes se llamaba 'paquete'
+                waitingClient.dni = dni;
+                waitingClient.name = name;
+                waitingClient.phone = phone;
+                
+                colaEspera.insertar(waitingClient);
+                // -------------------------------------
+                
+                cout << ">> Cliente agregado a la COLA DE ESPERA." << endl;
             }
+            
+            cout << "Presione ENTER para continuar...";
+            string _tmp; getline(cin, _tmp);
             break;
         }
 
