@@ -9,7 +9,7 @@
 #include "clients.hpp"
 using namespace std;
 
-structu DatosCola{
+struct DatosCola{
 	string dni;
 	string name;
 	string phone;

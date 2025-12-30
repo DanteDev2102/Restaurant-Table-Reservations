@@ -181,6 +181,9 @@ void CmdInterface::processChoice(int choice) {
 		    }
 		
 		    cout << "------------------------------" << endl;
+		    cout<<"PERSONAS EN COLA DE ESPERA:";
+		    colaEspera.mostrarCola();
+		    
 		    cout << "Presione ENTER para continuar...";
 		    string _tmp;
 		    getline(cin, _tmp);
@@ -191,46 +194,78 @@ void CmdInterface::processChoice(int choice) {
 			app.showCancelledReservations(cancelledList);
 			break;
 		}
+		
 		case 9: {
-			string dni, name, phone;
-        int hayMesa;
-
-        cout << "\n--- REGISTRO DE CLIENTE EN PUERTA ---" << endl;
-        cout << "Ingrese DNI: "; cin >> dni;
-        cout << "Ingrese Nombre: "; cin.ignore(); getline(cin, name);
-        cout << "Ingrese Telefono: "; cin >> phone;
-
-        // PREGUNTA PARA EL LIDER: ¿Hay mesa?
-        cout << "¿Hay mesa disponible ahora mismo? (1: Si / 0: No): ";
-        cin >> hayMesa;
-
-        if (hayMesa == 1) {
-            // OPCION A: Hay mesa -> Se va a Clients (Lider)
-            clientsList.addClient(dni, name, phone); 
-            cout << ">> Cliente registrado y sentado en mesa." << endl;
-        } else {
-            // OPCION B: No hay mesa -> Se va a Cola (Tu codigo)
+            // Declaración de variables locales
+            string dni, name, phone;
+            int hayMesa;
             
-            // 1. Preparamos el paquete para el Template
-            DatosCola paquete;
-            paquete.dni = dni;
-            paquete.name = name;
-            paquete.phone = phone;
-            
-            // 2. Lo metemos en tu cola
-            colaEspera.insertar(paquete);
-            cout << ">> Restaurante lleno. Cliente enviado a la COLA DE ESPERA." << endl;
+            cout << "\n--- REGISTRO DE CLIENTE EN PUERTA ---" << endl;
+            cout << "Ingrese DNI: "; cin >> dni;
+            cout << "Ingrese Nombre: "; cin.ignore(); getline(cin, name);
+            cout << "Ingrese Telefono: "; cin >> phone; 
+
+            cout << "¿Hay mesa disponible ahora mismo? (1: Si / 0: No): ";
+            cin >> hayMesa;
+
+            // --- VALIDACIÓN DE MESAS ---
+            if (hayMesa == 1) {
+                // 1. Preguntamos a la App cuántas mesas existen realmente
+                int maxMesas = app.getQtyTables();
+                
+                if (maxMesas == 0) {
+                    cout << "\n[!] ALERTA: No se han configurado las mesas en el sistema." << endl;
+                    cout << ">> No se puede asignar mesa. Redirigiendo a la COLA..." << endl;
+                    hayMesa = 0; // Forzamos el envío a la cola
+                } 
+                else {
+                    int numMesa;
+                    bool mesaValida = false;
+                    
+                    // 2. Bucle para obligar a poner una mesa real
+                    do {
+                        cout << "Asigne numero de mesa (1 - " << maxMesas << "): ";
+                        cin >> numMesa;
+                        
+                        if (numMesa >= 1 && numMesa <= maxMesas) {
+                            mesaValida = true;
+                        } else {
+                            cout << ">> Error: La mesa " << numMesa << " no existe. Intente de nuevo." << endl;
+                        }
+                    } while (!mesaValida);
+
+                    // 3. Si llegamos aqui, la mesa es valida. Sentamos al cliente.
+                    // CAMINO A (Líder / Clients.cpp)
+                    Client clienteNuevo(dni, name, numMesa, "Hoy");
+
+                    if (clientsList.enqueue(clienteNuevo)) {
+                        cout << ">> EXITO: Cliente registrado y sentado en mesa " << numMesa << "." << endl;
+                    } else {
+                        cout << ">> Error critico: La memoria para clientes esta llena." << endl;
+                    }
+                }
+            }
+
+            // Usamos un if separado por si la validación de arriba forzó hayMesa = 0
+            if (hayMesa == 0) {
+                // CAMINO B (Tu Cola / cola.hpp)
+                DatosCola paquete;
+                paquete.dni = dni;
+                paquete.name = name;
+                paquete.phone = phone; 
+                
+                colaEspera.insertar(paquete);
+                cout << ">> Restaurante lleno (o sin mesas). Cliente enviado a la COLA DE ESPERA." << endl;
+            }
+            break;
         }
-        break;
-    }
-    // --------------------------------
-		}
 
 		default:
+            // CORRECCION 2: El default ahora está DENTRO del switch
 			cout << "Ingrese un item de menu valido" << endl;
 			break;
-	}
-}
+	} // Fin del switch
+} // Fin de processChoice
 
 void CmdInterface::displayMenu() const {
 	cout << "\n===============================" << endl;

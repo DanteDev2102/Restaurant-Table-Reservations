@@ -23,7 +23,7 @@ class Cola {
         void insertar(T valor);
         void quitar(T &valor);
         void borrarCola();
-        // void mostrarCola(); // Opcional, si T se puede imprimir
+        void mostrarCola(); 
 };
 
 // TRUCO DE TEMPLATES: Incluir la implementación al final del header

@@ -58,4 +58,23 @@ void Cola<T>::borrarCola() {
     final = NULL;
 }
 
+template <typename T>
+void Cola<T>::mostrarCola() {
+    if (colaVacia()) {
+        cout << "La cola de espera esta vacia." << endl;
+        return;
+    }
+
+    NodoCola<T>* aux = frente;
+    cout << "\n--- PERSONAS EN ESPERA ---" << endl;
+    int i = 1;
+    while (aux != NULL) {
+        // Accedemos a los campos del struct DatosCola (dni, name)
+        cout << i << ". [" << aux->dato.dni << "] " << aux->dato.name << endl;
+        aux = aux->next;
+        i++;
+    }
+    cout << "--------------------------" << endl;
+}
+
 #endif
