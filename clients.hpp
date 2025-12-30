@@ -5,7 +5,8 @@
 
 using namespace std;
 
-struct Client {
+class Client {
+private:
     string dni;
     string name;
     int table;
@@ -13,9 +14,25 @@ struct Client {
     Orders orders;
     double total;
 
-    Client() : table(0), total(0.0) {}
-    Client(string dni, string name, int table, string day)
-        : dni(dni), name(name), table(table), day(day), total(0.0) {}
+public:
+    Client();
+    Client(string dni, string name, int table, string day);
+
+    // Getters
+    string getDni() const;
+    string getName() const;
+    int getTable() const;
+    string getDay() const;
+    Orders& getOrders();
+    double getTotal() const;
+
+    // Setters
+    void setDni(const string& dni);
+    void setName(const string& name);
+    void setTable(int table);
+    void setDay(const string& day);
+    void setOrders(const Orders& orders);
+    void setTotal(double total);
 };
 
 class ClientNode {
@@ -32,16 +49,16 @@ private:
     PtrClient rear;
 
 public:
-    Clients(); //contructor
-    ~Clients(); //destructor
+    Clients();
+    ~Clients();
 
     bool isEmpty();
     bool isFull();
-    bool enqueue(Client value);
+    bool enqueue(const Client& value);
     bool dequeue(Client& value);
     PtrClient getFront();
     PtrClient getRear();
     Client getInfo(ClientNode* p);
-    void setInfo(ClientNode* p, Client value);
+    void setInfo(ClientNode* p, const Client& value);
 };
 

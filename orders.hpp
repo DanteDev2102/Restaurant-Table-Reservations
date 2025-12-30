@@ -5,20 +5,32 @@
 
 using namespace std;
 
-struct Order {
+class Order {
+private:
     int dishCode;
     double price;
     string notes;
 
-    Order() : dishCode(0), price(0.0), notes("") {}
-    Order(int code, double price, string notes)
-        : dishCode(code), price(price), notes(notes) {}
+public:
+    Order();
+    Order(int code, double price, const string& notes);
+
+    // Getters
+    int getDishCode() const;
+    double getPrice() const;
+    string getNotes() const;
+
+    // Setters
+    void setDishCode(int code);
+    void setPrice(double price);
+    void setNotes(const string& notes);
 };
 
 class OrderNode {
-public:
+private:
     Order info;
     OrderNode* next;
+
     friend class Orders;
 };
 
@@ -30,15 +42,19 @@ private:
 
 public:
     Orders();
+    ~Orders();
 
     bool isEmpty();
     bool isFull();
     bool push(int dishCode, const string& notes);
     bool pop(Order& value);
+
     OrderPtr getTop();
     void setTop(OrderPtr p);
+
     Order getInfo(OrderNode* p);
-    void setInfo(OrderNode* p, Order value);
+    void setInfo(OrderNode* p, const Order& value);
+
     double totalPrice();
     int size();
 };
