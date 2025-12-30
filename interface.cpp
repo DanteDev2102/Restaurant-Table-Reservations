@@ -195,7 +195,8 @@ void CmdInterface::processChoice(int choice) {
 			break;
 		}
 		
-		case 9: {
+		
+        case 9: {
             cout << "\n--- REGISTRO DE CLIENTE EN PUERTA ---" << endl;
 
             // 1. VALIDACIÓN: ¿Existen mesas configuradas?
@@ -209,59 +210,64 @@ void CmdInterface::processChoice(int choice) {
             }
 
             // 2. Variables para los datos
-            string dni, name, phone;
+            string dni, name;
             int numMesa = 0;
             
             // 3. Pregunta Inicial
             int hayMesa = readIntegers("¿Hay mesa disponible ahora mismo? (1: Si / 0: No): ", 0, 1);
 
+            // Pedimos datos básicos (DNI y Nombre)
+            dni = readDNI("Ingrese Cedula (Solo numeros): ");
+            name = readAlphaString("Ingrese Nombre: ");
+
             if (hayMesa == 1) {
-                // --- CAMINO A: SE VA A SENTAR ---
-                // Validamos la mesa antes de pedir datos
+                // --- CAMINO A: SE VA A SENTAR (Ahora mismo) ---
+                
+                // Validamos la mesa
                 numMesa = readIntegers("Asigne numero de mesa (1 - " + to_string(maxMesas) + "): ", 1, maxMesas);
                 
-                // Pedimos datos validados
-                cout << "\n>> Datos del Cliente para la Mesa " << numMesa << ":" << endl;
-                dni = readDNI("Ingrese Cedula (Solo numeros): ");
-                name = readAlphaString("Ingrese Nombre: ");
-                cout << "Ingrese Telefono: "; cin >> phone; 
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-                // Creamos el objeto para el Líder
+                // Creamos el objeto para el Líder (Clients.cpp)
+                // Nota: Al sentarse YA, el día es "Hoy" (o puedes pedirlo si prefieres)
                 Client clienteNuevo(dni, name, numMesa, "Hoy");
 
                 if (clientsList.enqueue(clienteNuevo)) {
-                    cout << ">> EXITO: Cliente registrado y sentado." << endl;
+                    cout << ">> EXITO: Cliente registrado y sentado en la Mesa " << numMesa << "." << endl;
                 } else {
                     cout << ">> Error: Memoria llena en lista de clientes." << endl;
                 }
 
             } else {
-                // --- CAMINO B: SE VA A LA COLA ---
-                cout << "\n>> Restaurante Lleno. Datos para la Lista de Espera:" << endl;
+                // --- CAMINO B: SE VA A LA COLA (Lista de Espera) ---
+                cout << "\n>> Restaurante Lleno. Ingrese datos para la LISTA DE ESPERA:" << endl;
                 
-                dni = readDNI("Ingrese Cedula (Solo numeros): ");
-                name = readAlphaString("Ingrese Nombre: ");
-                cout << "Ingrese Telefono: "; cin >> phone;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                // Pedimos los datos específicos de la espera
+                cout << "--- Detalles de la Espera ---" << endl;
+                
+                // 1. ¿Qué mesa quiere?
+                int mesaEsperada = readIntegers("¿Que mesa espera? (1-" + to_string(maxMesas) + "): ", 1, maxMesas);
+                
+                // 2. ¿Para qué día? (Usamos readValidDay para validar mayusculas/minusculas)
+                string diaEsperado = readValidDay("¿Para que dia es la espera? (Lunes-Viernes): ");
+                
+                // 3. ¿Cuántos son?
+                int personas = readIntegers("Cantidad de personas (1-8): ", 1, 8);
 
-                // --- AQUÍ ESTÁ EL CAMBIO DE NOMBRE ---
-                DatosCola waitingClient;         // Antes se llamaba 'paquete'
+                // Llenamos el paquete con la estructura NUEVA
+                DatosCola waitingClient;
                 waitingClient.dni = dni;
                 waitingClient.name = name;
-                waitingClient.phone = phone;
+                waitingClient.table = mesaEsperada; // Ahora sí existe en el struct
+                waitingClient.day = diaEsperado;    // Ahora sí existe en el struct
+                waitingClient.qty = personas;       // Ahora sí existe en el struct
                 
                 colaEspera.insertar(waitingClient);
-                // -------------------------------------
-                
-                cout << ">> Cliente agregado a la COLA DE ESPERA." << endl;
+                cout << ">> Cliente agregado a la COLA DE ESPERA para el " << diaEsperado << "." << endl;
             }
             
             cout << "Presione ENTER para continuar...";
             string _tmp; getline(cin, _tmp);
             break;
         }
-
 		default:
             // CORRECCION 2: El default ahora está DENTRO del switch
 			cout << "Ingrese un item de menu valido" << endl;

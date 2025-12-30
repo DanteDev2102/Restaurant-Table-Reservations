@@ -61,22 +61,22 @@ void Cola<T>::borrarCola() {
 template <typename T>
 void Cola<T>::mostrarCola() {
     if (colaVacia()) {
-        cout << "\n[!] La cola de espera esta vacia." << endl;
+        cout << "\n[!] La lista de espera esta vacia." << endl;
         return;
     }
 
     NodoCola<T>* aux = frente;
     int turno = 1;
     
-    cout << "\n===== LISTA DE ESPERA (COLA) =====" << endl;
+    cout << "\n===== LISTA DE ESPERA (RESERVAS) =====" << endl;
     
     while (aux != NULL) {
-        // Estilo visual tipo bloque solicitado
-        cout << "---------- Cliente en Espera ------------" << endl;
-        cout << "Turno en cola       : " << turno << endl;
-        cout << "Nombre del Cliente  : " << aux->dato.name << endl;
-        cout << "Cedula del Cliente  : " << aux->dato.dni << endl;
-        cout << "Telefono contacto   : " << aux->dato.phone << endl;
+        cout << "---------- Turno #" << turno << " ------------" << endl;
+        cout << "Cliente       : " << aux->dato.name << " (DNI: " << aux->dato.dni << ")" << endl;
+        cout << "Solicita Mesa : " << aux->dato.table << endl;
+        cout << "Para el dia   : " << aux->dato.day << endl;
+        cout << "Cantidad de Personas      : " << aux->dato.qty << endl;
+        cout << "Estado        : ESPERANDO DISPONIBILIDAD" << endl;
         
         aux = aux->next;
         turno++;

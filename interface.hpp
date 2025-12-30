@@ -12,7 +12,9 @@ using namespace std;
 struct DatosCola{
 	string dni;
 	string name;
-	string phone;
+	string day;
+	int table;
+	int qty;
 };
 
 class CmdInterface {
