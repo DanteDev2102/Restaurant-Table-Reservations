@@ -191,6 +191,40 @@ void CmdInterface::processChoice(int choice) {
 			app.showCancelledReservations(cancelledList);
 			break;
 		}
+		case 9: {
+			string dni, name, phone;
+        int hayMesa;
+
+        cout << "\n--- REGISTRO DE CLIENTE EN PUERTA ---" << endl;
+        cout << "Ingrese DNI: "; cin >> dni;
+        cout << "Ingrese Nombre: "; cin.ignore(); getline(cin, name);
+        cout << "Ingrese Telefono: "; cin >> phone;
+
+        // PREGUNTA PARA EL LIDER: ¿Hay mesa?
+        cout << "¿Hay mesa disponible ahora mismo? (1: Si / 0: No): ";
+        cin >> hayMesa;
+
+        if (hayMesa == 1) {
+            // OPCION A: Hay mesa -> Se va a Clients (Lider)
+            clientsList.addClient(dni, name, phone); 
+            cout << ">> Cliente registrado y sentado en mesa." << endl;
+        } else {
+            // OPCION B: No hay mesa -> Se va a Cola (Tu codigo)
+            
+            // 1. Preparamos el paquete para el Template
+            DatosCola paquete;
+            paquete.dni = dni;
+            paquete.name = name;
+            paquete.phone = phone;
+            
+            // 2. Lo metemos en tu cola
+            colaEspera.insertar(paquete);
+            cout << ">> Restaurante lleno. Cliente enviado a la COLA DE ESPERA." << endl;
+        }
+        break;
+    }
+    // --------------------------------
+		}
 
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
@@ -210,6 +244,7 @@ void CmdInterface::displayMenu() const {
     cout << "6. Cancelar Reserva" << endl;
     cout << "7. Listar Mesas Reservadas" << endl;
     cout << "8. Listar Reservas Canceladas" << endl;
+    cout << "9. Registrar llegada de cliente (Mesa/Cola)" << endl;
     cout << "0. Salir" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "Ingrese su opcion" << endl;

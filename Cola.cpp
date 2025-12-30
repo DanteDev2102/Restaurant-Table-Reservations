@@ -1,56 +1,61 @@
-template <class Tipo>
-Cola<Tipo>::Cola() {
-     Frente=NULL;
-     Final=NULL;
-};
+#ifndef COLA_CPP
+#define COLA_CPP
 
-template <class Tipo>
-bool Cola<Tipo>::Vacia(){
-     return Frente == NULL;
-};
+#include "cola.hpp"
 
-template <class Tipo>
-bool Cola<Tipo>::Llena(){
-     nodo<Tipo> *p;
-     p=new nodo<Tipo>;
-     if (p==NULL)
-        return true;
-     else
-    {   delete p;
-        return false;
+template <typename T>
+Cola<T>::Cola() {
+    frente = NULL;
+    final = NULL;
+}
+
+template <typename T>
+bool Cola<T>::colaVacia() {
+    return (frente == NULL);
+}
+
+template <typename T>
+void Cola<T>::insertar(T valor) {
+    NodoCola<T>* nuevo = new NodoCola<T>();
+    nuevo->dato = valor;
+    nuevo->next = NULL;
+
+    if (colaVacia()) {
+        frente = nuevo;
+        final = nuevo;
+    } else {
+        final->next = nuevo;
+        final = nuevo;
     }
-};
+}
 
-template <class Tipo>
-bool Cola<Tipo>::Insertar(Tipo Valor){
-     nodo<Tipo> *nuevo;
-     if (!Llena())
-     {
-        nuevo=new nodo<Tipo>;
-        nuevo->info=Valor;
-        nuevo->prox=NULL;
-        if (Final==NULL) 
-            Frente=nuevo;       
-        else Final->prox=nuevo;
-        Final=nuevo;
-        return true;
-      }
-      else return false;
-};
+template <typename T>
+void Cola<T>::quitar(T &valor) {
+    if (colaVacia()) {
+        cout << "Cola vacia." << endl;
+        return;
+    }
 
-template <class Tipo>
-bool Cola<Tipo>::Remover(Tipo &Valor){
-     nodo<Tipo> *primero;
-     if (!Vacia())
-     {
-        primero=Frente;
-        Valor=primero->info;
-        Frente=primero->prox;
-        if (Frente==NULL)
-            Final=NULL;
-        delete primero;
-        return true;
-     }
-     else
-     return false;
-};
+    NodoCola<T>* p = frente;
+    valor = p->dato;
+    
+    frente = frente->next;
+    delete p;
+    
+    if (frente == NULL) {
+        final = NULL;
+    }
+}
+
+template <typename T>
+void Cola<T>::borrarCola() {
+    NodoCola<T>* p;
+    while (!colaVacia()) {
+        p = frente;
+        frente = frente->next;
+        delete p;
+    }
+    final = NULL;
+}
+
+#endif
