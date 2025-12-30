@@ -1,0 +1,103 @@
+#include "clients.hpp"
+
+// =======================
+// Implementación de Client
+// =======================
+
+Client::Client() : table(0), total(0.0) {}
+
+Client::Client(string dni, string name, int table, string day)
+    : dni(dni), name(name), table(table), day(day), total(0.0) {}
+
+string Client::getDni() const { return dni; }
+string Client::getName() const { return name; }
+int Client::getTable() const { return table; }
+string Client::getDay() const { return day; }
+Orders& Client::getOrders() { return orders; }
+double Client::getTotal() const { return total; }
+
+void Client::setDni(const string& dni) { this->dni = dni; }
+void Client::setName(const string& name) { this->name = name; }
+void Client::setTable(int table) { this->table = table; }
+void Client::setDay(const string& day) { this->day = day; }
+void Client::setOrders(const Orders& orders) { this->orders = orders; }
+void Client::setTotal(double total) { this->total = total; }
+
+// =======================
+// Implementación de Clients
+// =======================
+
+Clients::Clients() {
+    front = rear = nullptr;
+}
+
+Clients::~Clients() {
+    PtrClient p;
+    while (front != nullptr) {
+        p = front->next;
+        delete front;
+        front = p;
+    }
+}
+
+bool Clients::isEmpty() {
+    return front == nullptr;
+}
+
+bool Clients::isFull() {
+    PtrClient p = new(nothrow) ClientNode;
+    if (p == nullptr)
+        return true;
+    delete p;
+    return false;
+}
+
+bool Clients::enqueue(const Client& value) {
+    if (!isFull()) {
+        PtrClient newNode = new ClientNode;
+        newNode->info = value;
+        newNode->next = nullptr;
+
+        if (rear == nullptr)
+            front = newNode;
+        else
+            rear->next = newNode;
+
+        rear = newNode;
+        return true;
+    }
+    return false;
+}
+
+bool Clients::dequeue(Client& value) {
+    if (!isEmpty()) {
+        PtrClient firstNode = front;
+        value = firstNode->info;
+        front = front->next;
+
+        if (front == nullptr)
+            rear = nullptr;
+
+        delete firstNode;
+        return true;
+    }
+    return false;
+}
+
+Clients::PtrClient Clients::getFront() {
+    return front;
+}
+
+Clients::PtrClient Clients::getRear() {
+    return rear;
+}
+
+Client Clients::getInfo(ClientNode* p) {
+    return p->info;
+}
+
+void Clients::setInfo(ClientNode* p, const Client& value) {
+    if (p != nullptr)
+        p->info = value;
+}
+
