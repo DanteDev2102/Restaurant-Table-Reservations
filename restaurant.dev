@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=00000000c0000000001000000
-UnitCount=7
+UnitCount=9
 
 [VersionInfo]
 Major=1
@@ -91,9 +91,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit9]
-FileName=utils\utility.hpp
+FileName=orders.cpp
 CompileCpp=1
-Folder=utils
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -122,6 +122,16 @@ BuildCmd=
 
 [Unit7]
 FileName=db.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=clients.cpp
 CompileCpp=1
 Folder=
 Compile=1
