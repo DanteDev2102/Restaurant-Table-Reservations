@@ -1,4 +1,5 @@
 #include "clients.hpp"
+#include <iostream>
 
 // =======================
 // Implementación de Client
@@ -99,5 +100,36 @@ Client Clients::getInfo(ClientNode* p) {
 void Clients::setInfo(ClientNode* p, const Client& value) {
     if (p != nullptr)
         p->info = value;
+}
+
+void Clients::showQueue(bool isWaitingList) {
+    if (isEmpty()) {
+        cout << (isWaitingList ? "La cola de espera esta vacia." : "No hay clientes en mesas.") << endl;
+        return;
+    }
+
+    PtrClient aux = front;
+    int turno = 1;
+
+    cout << (isWaitingList ? "\n=== CLIENTES EN ESPERA ===" : "\n=== CLIENTES EN MESAS ===") << endl;
+    
+    while (aux != nullptr) {
+        Client info = aux->info; 
+        
+        cout << "-------------------------" << endl;
+        if (isWaitingList) {
+            cout << "Turno: " << turno << endl;
+            cout << "Cliente: " << info.getName() << " (DNI: " << info.getDni() << ")" << endl;
+            cout << "Espera para dia: " << info.getDay() << endl;
+        } else {
+            cout << "MESA: " << info.getTable() << endl;
+            cout << "Cliente: " << info.getName() << endl;
+            cout << "Total Actual: " << info.getTotal() << endl;
+        }
+        
+        aux = aux->next;
+        turno++;
+    }
+    cout << "-------------------------" << endl;
 }
 

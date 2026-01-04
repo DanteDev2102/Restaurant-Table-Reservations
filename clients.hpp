@@ -60,5 +60,6 @@ public:
     PtrClient getRear();
     Client getInfo(ClientNode* p);
     void setInfo(ClientNode* p, const Client& value);
+    void showQueue(bool isWaitingList);
 };
 
