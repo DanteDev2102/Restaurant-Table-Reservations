@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <chrono>    
 #include <thread>
+#include <iostream> 
 
 using namespace std;
 
@@ -20,16 +21,21 @@ void CmdInterface::run() {
 	while (choice != 0) {
 		displayMenu();
 		
+		// Lectura segura del menú
 		if (!(cin >> choice)) {
             cout << "Error: Entrada invalida. Ingrese un numero." << endl;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
             choice = -1;
+            system("pause"); // Pausa si hay error
             clearScreen();
             continue; 
         }
 
+        // Limpiamos el buffer justo después de leer la opción del menú
+        // Esto evita que el "Enter" del menú afecte a los casos siguientes
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
         processChoice(choice);
         clearScreen();
 	}
@@ -41,6 +47,7 @@ void CmdInterface::processChoice(int choice) {
 			break;
 		case 1:
 			app.configQtyTables();
+			system("pause"); // Pausa al terminar
 			break;
 		case 2: {
             char continuar = 's';
@@ -48,6 +55,7 @@ void CmdInterface::processChoice(int choice) {
             
             if (tables == 0) {
                  cout << "Error: Configure las mesas (Opcion 1) primero." << endl;
+                 system("pause");
                  break;
             }
 
@@ -81,8 +89,7 @@ void CmdInterface::processChoice(int choice) {
 		case 3: {
 			if (list1.isEmpty()) {
 			    cout << "No hay reservaciones registradas." << endl;
-			    cout << "Presione ENTER para continuar...";
-			    string _tmp; getline(cin, _tmp);
+			    system("pause");
 			    break;
 			}
 
@@ -125,14 +132,16 @@ void CmdInterface::processChoice(int choice) {
 		
 		case 4: {
 			app.updateFunction(list1);
+			// Nota: updateFunction suele tener sus propios cin/cout,
+			// pero por seguridad ponemos pausa al volver
+			system("pause"); 
 			break;
 		}
 		
 		case 5: {
 		    if (list1.isEmpty()) {
 		        cout << "No hay reservaciones registradas." << endl;
-		        cout << "Presione ENTER para continuar...";
-		        string _tmp; getline(cin, _tmp);
+		        system("pause");
 		        break;
 		    }
 		
@@ -143,18 +152,18 @@ void CmdInterface::processChoice(int choice) {
 		    mostrarReservasPorDia(list1, "jueves");
 		    mostrarReservasPorDia(list1, "viernes");
 		
-		    cout << "Presione ENTER para continuar...";
-		    string _tmp; getline(cin, _tmp);
+		    system("pause");
 		    break;
 		}
 
 		case 6: {
 			app.deleteFunction(list1, cancelledList);
+			// deleteFunction maneja su flujo, pero aseguramos pausa
+			system("pause"); 
 			break;
 		}
 			
 		case 7: {
-            // CORREGIDO: Submenú para ver Listas o Reservas
 		    cout << "\n--- REPORTES Y LISTADOS ---" << endl;
 		    cout << "1. Ver Reservas (Base de Datos)" << endl;
 		    cout << "2. Ver Clientes Sentados (Comiendo)" << endl;
@@ -184,74 +193,147 @@ void CmdInterface::processChoice(int choice) {
                 }
 		    }
 		    else if (subOpc == 2) {
-		        // CORREGIDO: Usamos la lista nueva clientsList
 		        clientsList.showQueue(false);
 		    }
 		    else {
-		        // CORREGIDO: Usamos la lista nueva waitingQueue
 		        waitingQueue.showQueue(true);
 		    }
 		
-		    cout << "Presione ENTER para continuar...";
-		    string _tmp; getline(cin, _tmp);
+		    system("pause"); // CORREGIDO: Pausa simple y efectiva
 		    break;
 		}
 		
 		case 8: {
 			app.showCancelledReservations(cancelledList);
-			break;
+            // Si showCancelled no tiene pausa, la ponemos aqui, si ya tiene, no importa.
+			break; 
 		}
 		
 		case 9: {
-            cout << "\n--- REGISTRO DE CLIENTE EN PUERTA ---" << endl;
-
+            cout << "\n--- REGISTRO DE LLEGADA (CHECK-IN) ---" << endl;
+            
+            string dni, name, day;
+            int numMesa = 0;
+            
             int maxMesas = app.getQtyTables();
             if (maxMesas == 0) {
-                cout << "[!] ERROR: Configure las mesas (Opcion 1) primero." << endl;
-                cout << "Presione ENTER para salir...";
-                string _tmp; getline(cin, _tmp);
+                cout << "[!] ERROR: Configure mesas primero (Opc 1)." << endl;
+                system("pause");
                 break; 
             }
 
-            string dni = readDNI("Ingrese Cedula: ");
-            string name = readAlphaString("Ingrese Nombre: ");
-            
-            int hayMesa = readIntegers("¿Hay mesa disponible YA? (1: Si / 0: No): ", 0, 1);
+            dni = readDNI("Ingrese Cedula del Cliente: ");
 
-            if (hayMesa == 1) {
-                // --- CAMINO A: SE SIENTA ---
-                int numMesa = readIntegers("Asigne Mesa (1-" + to_string(maxMesas) + "): ", 1, maxMesas);
-                
-                // Cliente normal (Mesa asignada, Dia "HOY")
-                Client nuevoCliente(dni, name, numMesa, "HOY");
-                
-                if (clientsList.enqueue(nuevoCliente)) {
-                    cout << ">> Exito: Cliente sentado en Mesa " << numMesa << "." << endl;
-                } else {
-                    cout << ">> Error: Lista de clientes llena." << endl;
-                }
+            // 1. BUSCAR RESERVA
+            Reservation* res = list1.searchReservationByDni(dni, list1.getFirst());
 
+            if (res != nullptr) {
+                name = res->getName();
+                numMesa = res->getTable();
+                day = res->getDate(); 
+                
+                cout << "\n>> ¡Reserva Encontrada!" << endl;
+                cout << ">> Cliente: " << name << " | Mesa Reservada: " << numMesa << endl;
+                
             } else {
-                // --- CAMINO B: A LA COLA DE ESPERA ---
-                cout << ">> Restaurante lleno. Ingresando a Lista de Espera..." << endl;
-                string dia = readValidDay("¿Para que dia espera? (Ej: Viernes): ");
+                cout << "\n>> Cliente SIN reserva." << endl;
+                name = readAlphaString("Ingrese Nombre: ");
+                day = "HOY"; 
                 
-                // CORREGIDO: Ya no usamos struct. Creamos un CLIENTE con mesa 0.
-                Client clienteEnEspera(dni, name, 0, dia);
+                cout << "¿Desea asignar mesa YA? (1: Si / 0: A la Cola): ";
+                int opc; cin >> opc;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer tras leer int
                 
-                if (waitingQueue.enqueue(clienteEnEspera)) {
-                     cout << ">> Exito: Cliente agregado a la COLA DE ESPERA." << endl;
+                if (opc == 1) {
+                    numMesa = readIntegers("Mesa deseada (1-" + to_string(maxMesas) + "): ", 1, maxMesas);
                 } else {
-                     cout << ">> Error: Cola de espera llena." << endl;
+                    numMesa = 0; 
                 }
             }
-            cout << "Presione ENTER para continuar...";
-            string _tmp; getline(cin, _tmp);
+
+            // 2. VALIDACION DE DISPONIBILIDAD REAL
+            bool mesaOcupada = false;
+            if (numMesa > 0) {
+                if (clientsList.isTableOccupied(numMesa)) {
+                    mesaOcupada = true;
+                    cout << "\n[!] ALERTA: La Mesa " << numMesa << " esta OCUPADA actualmente." << endl;
+                }
+            }
+
+            // 3. DECISIÓN FINAL
+            if (numMesa == 0 || mesaOcupada) {
+                if (mesaOcupada) {
+                    cout << ">> El cliente debe esperar en la COLA hasta que se libere." << endl;
+                }
+                Client clienteCola(dni, name, numMesa, day);
+                if (waitingQueue.enqueue(clienteCola)) {
+                    cout << ">> Cliente " << name << " agregado a la COLA DE ESPERA." << endl;
+                } else {
+                    cout << ">> Error: Cola llena." << endl;
+                }
+            } else {
+                Client clienteMesa(dni, name, numMesa, day);
+                if (clientsList.enqueue(clienteMesa)) {
+                    cout << ">> EXITO: Cliente sentado en la Mesa " << numMesa << "." << endl;
+                } else {
+                    cout << ">> Error: Lista de mesas llena." << endl;
+                }
+            }
+            
+            system("pause"); // CORREGIDO: Pausa simple
+            break;
+        }
+        
+        case 10: {
+            cout << "\n--- ASIGNAR MESA (Cola -> Mesa) ---" << endl;
+            
+            if (waitingQueue.isEmpty()) {
+                cout << ">> No hay clientes esperando." << endl;
+            } 
+            else {
+                Client clienteAtender;
+                waitingQueue.dequeue(clienteAtender); 
+                
+                cout << ">> Atendiendo a: " << clienteAtender.getName() << endl;
+                cout << ">> Mesa que esperaba: " << clienteAtender.getTable() << endl;
+                
+                int mesaDestino = clienteAtender.getTable();
+                int maxMesas = app.getQtyTables();
+
+                // 2. VALIDACIÓN ESTRICTA
+                bool necesitaCambio = (mesaDestino == 0) || clientsList.isTableOccupied(mesaDestino);
+                
+                if (necesitaCambio) {
+                    if (mesaDestino > 0) {
+                        cout << "[!] La Mesa " << mesaDestino << " sigue OCUPADA por otro comensal." << endl;
+                    } else {
+                        cout << ">> El cliente no tiene mesa especifica asignada." << endl;
+                    }
+                    
+                    do {
+                        mesaDestino = readIntegers("Asigne una mesa LIBRE (1-" + to_string(maxMesas) + "): ", 1, maxMesas);
+                        if (clientsList.isTableOccupied(mesaDestino)) {
+                            cout << ">> Error: La mesa " << mesaDestino << " TAMBIEN esta ocupada." << endl;
+                        }
+                    } while (clientsList.isTableOccupied(mesaDestino));
+                    
+                    clienteAtender.setTable(mesaDestino);
+                }
+
+                if (clientsList.enqueue(clienteAtender)) {
+                    cout << ">> EXITO: Cliente trasladado a la Mesa " << mesaDestino << "." << endl;
+                } else {
+                    cout << ">> Error critico: Memoria llena." << endl;
+                }
+            }
+            
+            system("pause"); // CORREGIDO: Pausa simple
             break;
         }
 
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
+			system("pause");
 			break;
 	}
 }
@@ -269,6 +351,7 @@ void CmdInterface::displayMenu() const {
     cout << "7. Listar Mesas / Cola de Espera" << endl;
     cout << "8. Listar Reservas Canceladas" << endl;
     cout << "9. Registrar llegada (Mesa/Cola)" << endl;
+    cout << "10. Sentar Cliente (Cola -> Mesa)" << endl;
     cout << "0. Salir" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "Ingrese su opcion" << endl;

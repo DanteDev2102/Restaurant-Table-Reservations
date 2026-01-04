@@ -133,3 +133,17 @@ void Clients::showQueue(bool isWaitingList) {
     cout << "-------------------------" << endl;
 }
 
+bool Clients::isTableOccupied(int tableNum) {
+    // Si la mesa es 0, no cuenta como ocupada (0 es para cola de espera)
+    if (tableNum == 0) return false;
+
+    PtrClient aux = front;
+    while (aux != nullptr) {
+        if (aux->info.getTable() == tableNum) {
+            return true; // ¡Encontró a alguien comiendo ahí!
+        }
+        aux = aux->next;
+    }
+    return false; // Nadie tiene esa mesa
+}
+
