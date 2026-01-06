@@ -58,3 +58,4 @@ public:
     double totalPrice();
     int size();
 };
+

@@ -1,7 +1,7 @@
 #include "orders.hpp"
 
 // =======================
-// Implementación de Order
+// ImplementaciÃ³n de Order
 // =======================
 
 Order::Order() : dishCode(0), price(0.0), notes("") {}
@@ -18,7 +18,7 @@ void Order::setPrice(double price) { this->price = price; }
 void Order::setNotes(const string& notes) { this->notes = notes; }
 
 // =======================
-// Implementación de Orders
+// ImplementaciÃ³n de Orders
 // =======================
 
 Orders::Orders() {
@@ -105,3 +105,4 @@ int Orders::size() {
     }
     return count;
 }
+

@@ -2,7 +2,7 @@
 #include <iostream>
 
 // =======================
-// Implementación de Client
+// ImplementaciÃ³n de Client
 // =======================
 
 Client::Client() : table(0), total(0.0) {}
@@ -25,7 +25,7 @@ void Client::setOrders(const Orders& orders) { this->orders = orders; }
 void Client::setTotal(double total) { this->total = total; }
 
 // =======================
-// Implementación de Clients
+// ImplementaciÃ³n de Clients
 // =======================
 
 Clients::Clients() {
@@ -140,7 +140,7 @@ bool Clients::isTableOccupied(int tableNum) {
     PtrClient aux = front;
     while (aux != nullptr) {
         if (aux->info.getTable() == tableNum) {
-            return true; // ¡Encontró a alguien comiendo ahí!
+            return true; // Â¡EncontrÃ³ a alguien comiendo ahÃ­!
         }
         aux = aux->next;
     }
@@ -153,10 +153,10 @@ bool Clients::isClientInList(string dniCheck) {
     PtrClient aux = front;
     while (aux != nullptr) {
         if (aux->info.getDni() == dniCheck) {
-            return true; // ¡Lo encontró!
+            return true; // Â¡Lo encontrÃ³!
         }
         aux = aux->next;
     }
-    return false; // No está aquí
+    return false; // No estÃ¡ aquÃ­
 }
 

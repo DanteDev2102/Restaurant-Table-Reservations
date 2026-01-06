@@ -3,27 +3,43 @@
 #include <string>
 using namespace std;
 
-// Arreglo est�tico con los 5 platos codigo, nombre y precio
-struct MenuItem {
+class MenuItem {
+private:
     int code;
     string name;
     double price;
+
+public:
+    MenuItem();
+    MenuItem(int code, const string& name, double price);
+
+    // Getters
+    int getCode() const;
+    string getName() const;
+    double getPrice() const;
+
+    // Setters
+    void setCode(int code);
+    void setName(const string& name);
+    void setPrice(double price);
 };
 
-// Valores fijos Arreglo est�tico con los 5 platos codigo, nombre y precio
+// Tamaño del menú
 const int MENU_SIZE = 5;
+
+// Arreglo estático de objetos MenuItem
 const MenuItem MENU[MENU_SIZE] = {
-    {1, "Pabell�n", 15.0},
-    {2, "Plato Navide�o", 20.0},
-    {3, "Pollo Asado", 12.0},
-    {4, "Mondongo", 7.0},
-    {5, "Pasticho", 10.0}
+    MenuItem(1, "Pabellón", 15.0),
+    MenuItem(2, "Plato Navideño", 20.0),
+    MenuItem(3, "Pollo Asado", 12.0),
+    MenuItem(4, "Mondongo", 7.0),
+    MenuItem(5, "Pasticho", 10.0)
 };
 
-// Funci�n para buscar un plato por c�digo
+// Función para buscar un plato por código
 inline const MenuItem* findMenuItem(int code) {
     for (int i = 0; i < MENU_SIZE; ++i) {
-        if (MENU[i].code == code) {
+        if (MENU[i].getCode() == code) {
             return &MENU[i];
         }
     }
