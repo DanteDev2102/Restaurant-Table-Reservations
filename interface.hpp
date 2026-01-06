@@ -15,13 +15,11 @@ class CmdInterface {
 		Application app;
 		Reservations list1;
 		Reservations cancelledList;
-		
 		// --- AQUÍ DECLARAMOS LAS LISTAS ---
-		// Si no están aquí, el .cpp no las puede usar
 		Clients clientsList;   // Lista para gente en mesas
 		Clients waitingQueue;  // Lista para gente en espera
 		// ----------------------------------
-
+		string currentSystemDay;
 		void displayMenu() const;
 		void processChoice(int choice);
 		void clearScreen() const;

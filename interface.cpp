@@ -13,6 +13,14 @@ using namespace std;
 
 CmdInterface::CmdInterface() : app(0) {
 	app.loadReservations(list1);
+	
+	// Configuración inicial del día de trabajo
+    cout << "=== CONFIGURACION INICIAL DEL SISTEMA ===" << endl;
+    currentSystemDay = readValidDay("Ingrese el DIA DE OPERACION actual (ej: Lunes): ");
+    cout << ">> Sistema configurado para trabajar el dia: " << currentSystemDay << endl;
+    system("pause");
+    system("cls");
+	
 }
 
 void CmdInterface::run() {
@@ -210,7 +218,7 @@ void CmdInterface::processChoice(int choice) {
 		}
 		
 		case 9: {
-            cout << "\n--- RECEPCION (CHECK-IN EXCLUSIVO RESERVAS) ---" << endl;
+            cout << "\n--- RECEPCION (DIA: " << currentSystemDay << ") ---" << endl;
             
             string dni, name, day;
             int numMesa = 0;
@@ -224,58 +232,66 @@ void CmdInterface::processChoice(int choice) {
 
             dni = readDNI("Ingrese Cedula del Cliente: ");
 
-            // 1. VALIDACION DE DUPLICADOS (LO NUEVO)
-            // Verificamos si ya esta en la cola o comiendo ANTES de buscar reservas
-            
+            // Validar si ya está adentro (Igual que antes)
             if (waitingQueue.isClientInList(dni)) {
                 cout << "\n[!] EL CLIENTE YA HIZO CHECK-IN." << endl;
-                cout << ">> Esta persona ya se encuentra en la SALA DE ESPERA." << endl;
-                cout << ">> Vaya a la Opcion 10 para asignarle mesa." << endl;
-                system("pause");
-                break;
+                system("pause"); break;
             }
-
             if (clientsList.isClientInList(dni)) {
-                cout << "\n[!] EL CLIENTE YA ESTA DENTRO." << endl;
-                cout << ">> Esta persona ya tiene mesa asignada y esta comiendo." << endl;
-                system("pause");
-                break;
+                cout << "\n[!] EL CLIENTE YA ESTA COMIENDO." << endl;
+                system("pause"); break;
             }
 
-            // 2. BUSCAR RESERVA
+            // 1. BUSCAR RESERVA
             Reservation* res = list1.searchReservationByDni(dni, list1.getFirst());
 
             if (res == nullptr) {
                 cout << "\n[!] ACCESO DENEGADO." << endl;
-                cout << ">> Lo sentimos, este restaurante trabaja SOLO CON RESERVA." << endl;
-                cout << ">> Por favor realice una reserva en la Opcion 2." << endl;
-                system("pause");
-                break; 
+                cout << ">> Cliente sin reserva registrada." << endl;
+                system("pause"); break; 
             }
 
-            // --- ACEPTADO ---
+            // 2. FILTRO DE DIA (ESTO ES LO NUEVO QUE TE PIDIERON)
+            // Comparamos el día de la reserva con el día del sistema
+            
+            string diaReserva = res->getDate();
+            
+            // Nota: toLower ayuda a que "Viernes" sea igual a "viernes"
+            // (Asumo que tienes una funcion toLower en utils, si no, compara directo)
+            if (toLower(diaReserva) != toLower(currentSystemDay)) {
+                
+                cout << "\n[!] RESERVA INVALIDA PARA HOY." << endl;
+                cout << "------------------------------" << endl;
+                cout << ">> Hoy es: " << currentSystemDay << endl;
+                cout << ">> La reserva del cliente es para: " << diaReserva << endl;
+                cout << "------------------------------" << endl;
+                cout << ">> No se puede aceptar al cliente hoy." << endl;
+                
+                system("pause");
+                break; // Lo sacamos, no entra a la cola
+            }
+
+            // --- SI PASA EL FILTRO, TODO IGUAL QUE ANTES ---
             name = res->getName();
             numMesa = res->getTable();
             day = res->getDate(); 
             
-            cout << "\n>> [OK] Reserva Confirmada." << endl;
-            cout << ">> Cliente: " << name << endl;
-            cout << ">> Asignado a Mesa: " << numMesa << " (" << day << ")" << endl;
+            cout << "\n>> [OK] Reserva Confirmada para HOY." << endl;
+            cout << ">> Cliente: " << name << " | Mesa: " << numMesa << endl;
 
             if (clientsList.isTableOccupied(numMesa)) {
                 cout << "\n[i] AVISO: La mesa " << numMesa << " aun esta ocupada." << endl;
             } else {
-                cout << "\n[i] La mesa " << numMesa << " esta libre y lista." << endl;
+                cout << "\n[i] La mesa " << numMesa << " esta libre." << endl;
             }
 
             cout << ">> Registrando check-in..." << endl;
-            
             Client clienteLlegando(dni, name, numMesa, day);
 
             if (waitingQueue.enqueue(clienteLlegando)) {
-                cout << ">> EXITO: Sr/Sra " << name << " ingresado a la SALA DE ESPERA." << endl;
+                cout << ">> EXITO: Cliente ingresado a Restaurante." << endl;
             } else {
-                cout << ">> Error: La sala de espera esta llena." << endl;
+                cout << ">> Error:Restaurante lleno con personas en espera." << endl;
             }
             
             system("pause");
@@ -328,6 +344,59 @@ void CmdInterface::processChoice(int choice) {
             system("pause"); // CORREGIDO: Pausa simple
             break;
         }
+        
+        case 11: {
+            cout << "\n--- CIERRE DEL DIA Y CAMBIO DE FECHA ---" << endl;
+            cout << "Dia actual: " << currentSystemDay << endl;
+            
+            // 1. Advertencia
+            cout << "\n[!] ADVERTENCIA: Al cambiar el dia, se vaciara el restaurante." << endl;
+            cout << "    - Se eliminaran los clientes en espera." << endl;
+            cout << "    - Se levantaran los clientes de las mesas." << endl;
+            cout << "¿Seguro desea continuar? (1: Si / 0: No): ";
+            int opc; 
+			cin >> opc;
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            
+            if (opc != 1) {
+                cout << ">> Operacion cancelada." << endl;
+                system("pause"); break;
+            }
+            
+            // 2. Pedir nuevo día
+            string nuevoDia = readValidDay("Ingrese el nuevo dia de operacion: ");
+            
+            // 3. LIMPIEZA TOTAL (El "Cierre de Caja")
+            cout << "\n>> Realizando cierre del dia " << currentSystemDay << "..." << endl;
+            
+            Client basura; // Variable temporal para sacar gente
+            
+            // Vaciamos la Cola de Espera
+            int contCola = 0;
+            while (!waitingQueue.isEmpty()) {
+                waitingQueue.dequeue(basura);
+                contCola++;
+            }
+            
+            // Vaciamos las Mesas (Clientes comiendo)
+            int contMesas = 0;
+            while (!clientsList.isEmpty()) {
+                clientsList.dequeue(basura);
+                contMesas++;
+            }
+            
+            // 4. Actualizar Variable Global
+            currentSystemDay = nuevoDia;
+            
+            cout << ">> Limpieza completada." << endl;
+            cout << "   - " << contCola << " personas retiradas de la cola." << endl;
+            cout << "   - " << contMesas << " mesas liberadas." << endl;
+            cout << "---------------------------------------------" << endl;
+            cout << ">> EXITO: SISTEMA INICIADO PARA EL DIA: " << currentSystemDay << endl;
+            
+            system("pause");
+            break;
+        }
 
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
@@ -350,6 +419,7 @@ void CmdInterface::displayMenu() const {
     cout << "8. Listar Reservas Canceladas" << endl;
     cout << "9. Registrar llegada (Mesa/Cola)" << endl;
     cout << "10. Sentar Cliente (Cola -> Mesa)" << endl;
+    cout << "11. Cambiar Dia" << endl;
     cout << "0. Salir" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "Ingrese su opcion" << endl;
