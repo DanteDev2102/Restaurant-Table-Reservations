@@ -210,7 +210,7 @@ void CmdInterface::processChoice(int choice) {
 		}
 		
 		case 9: {
-            cout << "\n--- REGISTRO DE LLEGADA (CHECK-IN) ---" << endl;
+            cout << "\n--- RECEPCION (CHECK-IN EXCLUSIVO RESERVAS) ---" << endl;
             
             string dni, name, day;
             int numMesa = 0;
@@ -224,63 +224,61 @@ void CmdInterface::processChoice(int choice) {
 
             dni = readDNI("Ingrese Cedula del Cliente: ");
 
-            // 1. BUSCAR RESERVA
+            // 1. VALIDACION DE DUPLICADOS (LO NUEVO)
+            // Verificamos si ya esta en la cola o comiendo ANTES de buscar reservas
+            
+            if (waitingQueue.isClientInList(dni)) {
+                cout << "\n[!] EL CLIENTE YA HIZO CHECK-IN." << endl;
+                cout << ">> Esta persona ya se encuentra en la SALA DE ESPERA." << endl;
+                cout << ">> Vaya a la Opcion 10 para asignarle mesa." << endl;
+                system("pause");
+                break;
+            }
+
+            if (clientsList.isClientInList(dni)) {
+                cout << "\n[!] EL CLIENTE YA ESTA DENTRO." << endl;
+                cout << ">> Esta persona ya tiene mesa asignada y esta comiendo." << endl;
+                system("pause");
+                break;
+            }
+
+            // 2. BUSCAR RESERVA
             Reservation* res = list1.searchReservationByDni(dni, list1.getFirst());
 
-            if (res != nullptr) {
-                name = res->getName();
-                numMesa = res->getTable();
-                day = res->getDate(); 
-                
-                cout << "\n>> ¡Reserva Encontrada!" << endl;
-                cout << ">> Cliente: " << name << " | Mesa Reservada: " << numMesa << endl;
-                
-            } else {
-                cout << "\n>> Cliente SIN reserva." << endl;
-                name = readAlphaString("Ingrese Nombre: ");
-                day = "HOY"; 
-                
-                cout << "¿Desea asignar mesa YA? (1: Si / 0: A la Cola): ";
-                int opc; cin >> opc;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer tras leer int
-                
-                if (opc == 1) {
-                    numMesa = readIntegers("Mesa deseada (1-" + to_string(maxMesas) + "): ", 1, maxMesas);
-                } else {
-                    numMesa = 0; 
-                }
+            if (res == nullptr) {
+                cout << "\n[!] ACCESO DENEGADO." << endl;
+                cout << ">> Lo sentimos, este restaurante trabaja SOLO CON RESERVA." << endl;
+                cout << ">> Por favor realice una reserva en la Opcion 2." << endl;
+                system("pause");
+                break; 
             }
 
-            // 2. VALIDACION DE DISPONIBILIDAD REAL
-            bool mesaOcupada = false;
-            if (numMesa > 0) {
-                if (clientsList.isTableOccupied(numMesa)) {
-                    mesaOcupada = true;
-                    cout << "\n[!] ALERTA: La Mesa " << numMesa << " esta OCUPADA actualmente." << endl;
-                }
+            // --- ACEPTADO ---
+            name = res->getName();
+            numMesa = res->getTable();
+            day = res->getDate(); 
+            
+            cout << "\n>> [OK] Reserva Confirmada." << endl;
+            cout << ">> Cliente: " << name << endl;
+            cout << ">> Asignado a Mesa: " << numMesa << " (" << day << ")" << endl;
+
+            if (clientsList.isTableOccupied(numMesa)) {
+                cout << "\n[i] AVISO: La mesa " << numMesa << " aun esta ocupada." << endl;
+            } else {
+                cout << "\n[i] La mesa " << numMesa << " esta libre y lista." << endl;
             }
 
-            // 3. DECISIÓN FINAL
-            if (numMesa == 0 || mesaOcupada) {
-                if (mesaOcupada) {
-                    cout << ">> El cliente debe esperar en la COLA hasta que se libere." << endl;
-                }
-                Client clienteCola(dni, name, numMesa, day);
-                if (waitingQueue.enqueue(clienteCola)) {
-                    cout << ">> Cliente " << name << " agregado a la COLA DE ESPERA." << endl;
-                } else {
-                    cout << ">> Error: Cola llena." << endl;
-                }
+            cout << ">> Registrando check-in..." << endl;
+            
+            Client clienteLlegando(dni, name, numMesa, day);
+
+            if (waitingQueue.enqueue(clienteLlegando)) {
+                cout << ">> EXITO: Sr/Sra " << name << " ingresado a la SALA DE ESPERA." << endl;
             } else {
-                Client clienteMesa(dni, name, numMesa, day);
-                if (clientsList.enqueue(clienteMesa)) {
-                    cout << ">> EXITO: Cliente sentado en la Mesa " << numMesa << "." << endl;
-                } else {
-                    cout << ">> Error: Lista de mesas llena." << endl;
-                }
+                cout << ">> Error: La sala de espera esta llena." << endl;
             }
             
-            system("pause"); // CORREGIDO: Pausa simple
+            system("pause");
             break;
         }
         

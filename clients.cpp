@@ -146,4 +146,17 @@ bool Clients::isTableOccupied(int tableNum) {
     }
     return false; // Nadie tiene esa mesa
 }
+// Verifica si una cedula ya existe en esta lista
+bool Clients::isClientInList(string dniCheck) {
+    if (isEmpty()) return false;
+
+    PtrClient aux = front;
+    while (aux != nullptr) {
+        if (aux->info.getDni() == dniCheck) {
+            return true; // ¡Lo encontró!
+        }
+        aux = aux->next;
+    }
+    return false; // No está aquí
+}
 
