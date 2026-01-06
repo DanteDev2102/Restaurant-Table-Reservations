@@ -1,5 +1,32 @@
 #include "invoices.hpp"
 
+// =======================
+// Implementación de Invoice
+// =======================
+
+Invoice::Invoice() : table(0), total(0.0) {}
+
+Invoice::Invoice(string dni, string clientName, int table, string day, Orders orders, double total)
+    : dni(dni), clientName(clientName), table(table), day(day), orders(orders), total(total) {}
+
+string Invoice::getDni() const { return dni; }
+string Invoice::getClientName() const { return clientName; }
+int Invoice::getTable() const { return table; }
+string Invoice::getDay() const { return day; }
+Orders& Invoice::getOrders() { return orders; }
+double Invoice::getTotal() const { return total; }
+
+void Invoice::setDni(const string& dni) { this->dni = dni; }
+void Invoice::setClientName(const string& name) { this->clientName = name; }
+void Invoice::setTable(int table) { this->table = table; }
+void Invoice::setDay(const string& day) { this->day = day; }
+void Invoice::setOrders(const Orders& orders) { this->orders = orders; }
+void Invoice::setTotal(double total) { this->total = total; }
+
+// =======================
+// Implementación de Invoices
+// =======================
+
 Invoices::Invoices() {
     first = nullptr;
 }
@@ -26,14 +53,14 @@ bool Invoices::isEmpty() {
 }
 
 bool Invoices::isFull() {
-    PtrInvoice p = new InvoiceNode;
+    PtrInvoice p = new(nothrow) InvoiceNode;
     if (p == nullptr)
         return true;
     delete p;
     return false;
 }
 
-bool Invoices::insertAtBeginning(Invoice value) {
+bool Invoices::insertAtBeginning(const Invoice& value) {
     if (!isFull()) {
         PtrInvoice newNode = new InvoiceNode;
         newNode->info = value;
@@ -55,7 +82,7 @@ bool Invoices::removeFromBeginning(Invoice& value) {
     return false;
 }
 
-bool Invoices::insertAfter(PtrInvoice p, Invoice value) {
+bool Invoices::insertAfter(PtrInvoice p, const Invoice& value) {
     if (p == nullptr || isFull()) return false;
 
     PtrInvoice newNode = new InvoiceNode;
@@ -87,7 +114,7 @@ Invoice Invoices::getInfo(PtrInvoice p) {
     return p->info;
 }
 
-void Invoices::setInfo(PtrInvoice p, Invoice value) {
+void Invoices::setInfo(PtrInvoice p, const Invoice& value) {
     if (p) p->info = value;
 }
 
@@ -104,9 +131,8 @@ int Invoices::count() {
 Invoices::PtrInvoice Invoices::searchByDni(const string& dni) {
     PtrInvoice current = first;
     while (current != nullptr) {
-        if (current->info.dni == dni) return current;
+        if (current->info.getDni() == dni) return current;
         current = current->next;
     }
     return nullptr;
 }
-
