@@ -57,7 +57,7 @@ public:
     PtrInvoice getFirst();
     void setFirst(PtrInvoice p);
 
-    // Operaciones b·sicas
+    // Operaciones b√°sicas
     bool isEmpty();
     bool isFull();
     bool insertAtBeginning(const Invoice& value);
