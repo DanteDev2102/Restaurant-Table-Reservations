@@ -1,7 +1,7 @@
 #include "invoices.hpp"
 
 // =======================
-// Implementación de Invoice
+// ImplementaciÃ³n de Invoice
 // =======================
 
 Invoice::Invoice() : table(0), total(0.0) {}
@@ -24,7 +24,7 @@ void Invoice::setOrders(const Orders& orders) { this->orders = orders; }
 void Invoice::setTotal(double total) { this->total = total; }
 
 // =======================
-// Implementación de Invoices
+// ImplementaciÃ³n de Invoices
 // =======================
 
 Invoices::Invoices() {

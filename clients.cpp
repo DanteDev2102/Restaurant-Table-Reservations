@@ -1,7 +1,8 @@
 #include "clients.hpp"
+#include <iostream>
 
 // =======================
-// Implementaci髇 de Client
+// Implementaci贸n de Client
 // =======================
 
 Client::Client() : table(0), total(0.0) {}
@@ -24,7 +25,7 @@ void Client::setOrders(const Orders& orders) { this->orders = orders; }
 void Client::setTotal(double total) { this->total = total; }
 
 // =======================
-// Implementaci髇 de Clients
+// Implementaci贸n de Clients
 // =======================
 
 Clients::Clients() {
@@ -92,12 +93,79 @@ Clients::PtrClient Clients::getRear() {
     return rear;
 }
 
-Client Clients::getInfo(ClientNode* p) {
+Client& Clients::getInfo(ClientNode* p) {
     return p->info;
 }
 
 void Clients::setInfo(ClientNode* p, const Client& value) {
     if (p != nullptr)
         p->info = value;
+}
+
+void Clients::showQueue(bool isWaitingList) {
+    if (isEmpty()) {
+        cout << (isWaitingList ? "La cola de espera esta vacia." : "No hay clientes en mesas.") << endl;
+        return;
+    }
+
+    PtrClient aux = front;
+    int turno = 1;
+
+    cout << (isWaitingList ? "\n=== CLIENTES EN ESPERA ===" : "\n=== CLIENTES EN MESAS ===") << endl;
+    
+    while (aux != nullptr) {
+        Client& info = getInfo(aux);
+        
+        cout << "-------------------------" << endl;
+        if (isWaitingList) {
+            cout << "Turno: " << turno << endl;
+            cout << "Cliente: " << info.getName() << " (DNI: " << info.getDni() << ")" << endl;
+            cout << "Espera para dia: " << info.getDay() << endl;
+        } else {
+            cout << "MESA: " << info.getTable() << endl;
+            cout << "Cliente: " << info.getName() << endl;
+            cout << "Total Actual: " << info.getTotal() << endl;
+        }
+        
+        aux = getNext(aux);
+        turno++;
+    }
+    cout << "-------------------------" << endl;
+}
+
+bool Clients::isTableOccupied(int tableNum) {
+    // Si la mesa es 0, no cuenta como ocupada (0 es para cola de espera)
+    if (tableNum == 0) return false;
+
+    PtrClient aux = front;
+    while (aux != nullptr) {
+        if (aux->info.getTable() == tableNum) {
+            return true; // 隆Encontr贸 a alguien comiendo ah铆!
+        }
+        aux = aux->next;
+    }
+    return false; // Nadie tiene esa mesa
+}
+// Verifica si una cedula ya existe en esta lista
+bool Clients::isClientInList(string dniCheck) {
+    if (isEmpty()) return false;
+
+    PtrClient aux = front;
+    while (aux != nullptr) {
+        if (aux->info.getDni() == dniCheck) {
+            return true; // 隆Lo encontr贸!
+        }
+        aux = aux->next;
+    }
+    return false; // No est谩 aqu铆
+}
+
+ClientNode* Clients::getNext(ClientNode* p) const {
+    return (p != nullptr) ? p->next : nullptr;
+}
+
+void Clients::setNext(ClientNode* p, ClientNode* nextNode) {
+    if (p != nullptr)
+        p->next = nextNode;
 }
 
