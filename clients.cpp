@@ -93,7 +93,7 @@ Clients::PtrClient Clients::getRear() {
     return rear;
 }
 
-Client Clients::getInfo(ClientNode* p) {
+Client& Clients::getInfo(ClientNode* p) {
     return p->info;
 }
 
@@ -114,7 +114,7 @@ void Clients::showQueue(bool isWaitingList) {
     cout << (isWaitingList ? "\n=== CLIENTES EN ESPERA ===" : "\n=== CLIENTES EN MESAS ===") << endl;
     
     while (aux != nullptr) {
-        Client info = aux->info; 
+        Client& info = getInfo(aux);
         
         cout << "-------------------------" << endl;
         if (isWaitingList) {
@@ -127,7 +127,7 @@ void Clients::showQueue(bool isWaitingList) {
             cout << "Total Actual: " << info.getTotal() << endl;
         }
         
-        aux = aux->next;
+        aux = getNext(aux);
         turno++;
     }
     cout << "-------------------------" << endl;
@@ -158,5 +158,14 @@ bool Clients::isClientInList(string dniCheck) {
         aux = aux->next;
     }
     return false; // No está aquí
+}
+
+ClientNode* Clients::getNext(ClientNode* p) const {
+    return (p != nullptr) ? p->next : nullptr;
+}
+
+void Clients::setNext(ClientNode* p, ClientNode* nextNode) {
+    if (p != nullptr)
+        p->next = nextNode;
 }
 

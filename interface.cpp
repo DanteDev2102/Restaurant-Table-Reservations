@@ -397,7 +397,56 @@ void CmdInterface::processChoice(int choice) {
             system("pause");
             break;
         }
-
+        
+        case 12: {
+			cout << "\n--- TOMAR PEDIDOS ---" << endl;
+		
+		    if (clientsList.isEmpty()) {
+		        cout << "No hay clientes en mesas." << endl;
+		        system("pause");
+		        break;
+		    }
+		
+		    int maxMesas = app.getQtyTables();
+		    int tableSearch = readIntegers("Digite la mesa del cliente: ", 1, maxMesas); 
+		
+		    ClientNode* aux = clientsList.getFront();
+		    bool found = false;
+		
+		    while (aux != nullptr) {
+		        Client& cliente = clientsList.getInfo(aux); 
+		        if (cliente.getTable() == tableSearch) {
+		            found = true;
+		
+		            char continuar = 's';
+		            while (continuar == 's' || continuar == 'S') {
+		                int dishCode = readIntegers("Codigo del platillo (1-5): ", 1, 5);
+		
+		                string notes;
+		                cout << "Notas del pedido (preferencias): ";
+		                getline(cin, notes);
+		
+		                if (cliente.getOrders().push(dishCode, notes)) {
+		                    cout << "Pedido agregado exitosamente." << endl;
+		                    cliente.setTotal(cliente.getOrders().totalPrice());
+		                } else {
+		                    cout << "Error: Platillo no encontrado." << endl;
+		                }
+		
+		                cout << "¿Desea agregar otro pedido para este cliente? (s/n): ";
+		                cin >> continuar;
+		                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		            }		
+		            break; // salir del bucle, ya se atendió la mesa
+		        }
+		        aux = clientsList.getNext(aux);
+		    }
+		    if (!found) {
+		        cout << "Cliente no encontrado en mesas." << endl;
+		    }
+		    system("pause");
+		    break;
+		}
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
 			system("pause");
@@ -409,6 +458,9 @@ void CmdInterface::displayMenu() const {
 	cout << "\n===============================" << endl;
     cout << "          MENU PRINCIPAL         " << endl;
     cout << "===============================" << endl;
+    cout << "-------------------------------" << endl;
+    cout << "	RESERVAS" << endl;
+    cout << "-------------------------------" << endl;
     cout << "1. Configurar Cantidad de Mesas" << endl;
     cout << "2. Reservar una mesa" << endl;
     cout << "3. Consultar Reserva por Cedula" << endl;
@@ -417,11 +469,18 @@ void CmdInterface::displayMenu() const {
     cout << "6. Cancelar Reserva" << endl;
     cout << "7. Listar Mesas / Cola de Espera" << endl;
     cout << "8. Listar Reservas Canceladas" << endl;
+    cout << "-------------------------------" << endl;
+    cout << "	CLIENTES" << endl;
+    cout << "-------------------------------" << endl;
     cout << "9. Registrar llegada (Mesa/Cola)" << endl;
     cout << "10. Sentar Cliente (Cola -> Mesa)" << endl;
     cout << "11. Cambiar Dia" << endl;
-    cout << "0. Salir" << endl;
+    cout << "-------------------------------" << endl;
+    cout << "	PEDIDOS" << endl;
+    cout << "-------------------------------" << endl;
+    cout << "12. Tomar pedidos" << endl;
 	cout << "-------------------------------" << endl;
+	cout << "0. Salir" << endl;
 	cout << "Ingrese su opcion" << endl;
 }
 
