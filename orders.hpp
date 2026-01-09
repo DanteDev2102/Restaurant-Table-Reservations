@@ -47,6 +47,8 @@ public:
     bool isEmpty();
     bool isFull();
     bool push(int dishCode, const string& notes);
+    bool push2(int dishCode, double price, const string& notes);
+
     bool pop(Order& value);
 
     OrderPtr getTop();
@@ -57,5 +59,13 @@ public:
 
     double totalPrice();
     int size();
+    
+    //modificarPlato
+    bool modifyDish(int oldCodeDish, int newCodeDish, const std::string& newNotes);
+    
+    // verifica si la pila contiene el plato
+    bool containsDish(int code) const;
+
+
 };
 

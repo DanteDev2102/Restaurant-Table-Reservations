@@ -1,6 +1,9 @@
 #include "interface.hpp"
 #include "reservation.hpp"
 #include "utils/utility.hpp"
+#include "orders.hpp"
+#include "menu.hpp"
+#include "clients.hpp"
 
 #include <limits>
 #include <iomanip>
@@ -447,6 +450,155 @@ void CmdInterface::processChoice(int choice) {
 		    system("pause");
 		    break;
 		}
+		case 13: {
+		    
+		    cout << "\n--- MODIFICAR PEDIDO DE UN CLIENTE ---" << endl;
+		
+		    if (clientsList.isEmpty()) {
+		        cout << "No hay clientes en mesas." << endl;
+		        system("pause");
+		        break;
+		    }
+		
+		    int maxMesas = app.getQtyTables();
+		    int tableSearch = readIntegers("Indique la mesa del cliente: ", 1, maxMesas);
+		
+		    ClientNode* aux = clientsList.getFront();
+		    bool foundClient = false;
+		
+		    while (aux != nullptr) {
+		        Client& cliente = clientsList.getInfo(aux);
+		        if (cliente.getTable() == tableSearch) {
+		            foundClient = true;
+		
+		            int oldCodeDish = readIntegers("Codigo del plato a modificar: ", 1, MENU_SIZE);
+		            int newCodeDish = readIntegers("Nuevo codigo del plato: ", 1, MENU_SIZE);
+		
+		            const MenuItem* oldItem = findMenuItem(oldCodeDish); 
+		            const MenuItem* newItem = findMenuItem(newCodeDish); 
+		
+		            if (!oldItem || !newItem) { 
+		                cout << ">> Error: Codigo de plato invalido." << endl; 
+		                break;
+		            }
+		
+		            // Verificar si el plato viejo está en la pila
+		            if (!cliente.getOrders().containsDish(oldCodeDish)) {
+		                cout << ">> Error: El cliente no tiene ese plato en su pedido." << endl;
+		                break;
+		            }
+		
+		            // Mostrar nombres platos y confirmar
+		            cout << "Modificando \"" << oldItem->getName() << "\" por \"" << newItem->getName() << "\"..." << endl;
+		            char confirmar;
+		            cout << "¿Está seguro de realizar esta modificacion? (s/n): ";
+		            cin >> confirmar;
+		            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		
+		            if (confirmar != 's' && confirmar != 'S') {
+		                cout << ">> Modificacion cancelada por el usuario." << endl;
+		                break;
+		            }
+		
+		            string newNotes;
+		            cout << "Nuevas notas del pedido: ";
+		            getline(cin, newNotes);
+		
+		            bool ok = cliente.getOrders().modifyDish(oldCodeDish, newCodeDish, newNotes);
+		            if (ok) {
+		                cliente.setTotal(cliente.getOrders().totalPrice());
+		                cout << ">> Pedido modificado exitosamente." << endl;
+		            } else {
+		                cout << ">> Error inesperado al modificar el pedido." << endl;
+		            }
+		
+		            break;
+		        }
+		        aux = clientsList.getNext(aux);
+		    }
+		
+		    if (!foundClient) {
+		        cout << "Cliente no encontrado en mesa." << endl;
+		    }
+		
+		    system("pause");
+		    break;
+		}
+
+
+		case 14: {
+		    cout << "\n--- REPORTE DE PEDIDOS POR MESA ---" << endl;
+		
+		    if (clientsList.isEmpty()) {
+		        cout << "No hay clientes en mesas." << endl;
+		        system("pause");
+		        break;
+		    }
+		
+		    PtrClient aux = clientsList.getFront();
+		    bool hayPedidos = false;
+		
+		    while (aux != nullptr) {
+		        Client& cliente = clientsList.getInfo(aux);
+		        Orders& pilaOriginal = cliente.getOrders();
+		
+		        if (!pilaOriginal.isEmpty()) {
+		            hayPedidos = true;
+		            cout << "\n==============================" << endl;
+		            cout << "Mesa: " << cliente.getTable() << endl;
+		            cout << "Pedidos:" << endl;
+		
+		            Orders copia;
+		            Orders auxiliar;
+		            Order temp;
+		
+		            // Volcar la pila original en auxiliar (para invertirla)
+		            while (!pilaOriginal.isEmpty()) {
+		                pilaOriginal.pop(temp);
+		                auxiliar.push2(temp.getDishCode(), temp.getPrice(), temp.getNotes());
+		            }
+		
+		            // Restaurar pila original y construir copia para mostrar
+		            while (!auxiliar.isEmpty()) {
+		                auxiliar.pop(temp);
+		                pilaOriginal.push2(temp.getDishCode(), temp.getPrice(), temp.getNotes()); // restaurar original
+		                copia.push2(temp.getDishCode(), temp.getPrice(), temp.getNotes());        // copia para mostrar
+		            }
+		
+		            // Mostrar la copia
+		            Order pedido;
+		            int i = 1;
+		            while (!copia.isEmpty()) {
+		                copia.pop(pedido);
+		                const MenuItem* item = findMenuItem(pedido.getDishCode());
+		                string nombre = (item != nullptr) ? item->getName() : "Desconocido";
+		
+		                cout << fixed << setprecision(2);
+		                cout << "  " << i++ << ". " << nombre
+		                     << " (Codigo: " << pedido.getDishCode()
+		                     << ", Precio: Bs. " << pedido.getPrice()
+		                     << ", Notas: " << pedido.getNotes() << ")" << endl;
+		            }
+		
+		            cout << fixed << setprecision(2);
+		            cout << "Total: Bs. " << cliente.getTotal() << endl;
+		            cout << "==============================" << endl;
+		        }
+		
+		        aux = clientsList.getNext(aux);
+		    }
+		
+		    if (!hayPedidos) {
+		        cout << "No hay pedidos registrados en ninguna mesa." << endl;
+		    }
+		
+		    system("pause");
+		    break;
+		}
+
+
+
+
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
 			system("pause");
@@ -479,6 +631,8 @@ void CmdInterface::displayMenu() const {
     cout << "	PEDIDOS" << endl;
     cout << "-------------------------------" << endl;
     cout << "12. Tomar pedidos" << endl;
+    cout << "13. Modificar pedido de un cliente" << endl;
+    cout << "14. Reporte pedidos" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "0. Salir" << endl;
 	cout << "Ingrese su opcion" << endl;
