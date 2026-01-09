@@ -24,19 +24,19 @@ public:
     void setPrice(double price);
 };
 
-// Tamaño del menú
+// Tamano del menu
 const int MENU_SIZE = 5;
 
-// Arreglo estático de objetos MenuItem
+// Arreglo estatico de objetos MenuItem
 const MenuItem MENU[MENU_SIZE] = {
-    MenuItem(1, "Pabellón", 15.0),
-    MenuItem(2, "Plato Navideño", 20.0),
+    MenuItem(1, "Pabellon", 15.0),
+    MenuItem(2, "Plato Navideno", 20.0),
     MenuItem(3, "Pollo Asado", 12.0),
     MenuItem(4, "Mondongo", 7.0),
     MenuItem(5, "Pasticho", 10.0)
 };
 
-// Función para buscar un plato por código
+// Funcion para buscar un plato por codigo
 inline const MenuItem* findMenuItem(int code) {
     for (int i = 0; i < MENU_SIZE; ++i) {
         if (MENU[i].getCode() == code) {

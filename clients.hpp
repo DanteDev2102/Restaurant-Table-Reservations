@@ -5,6 +5,9 @@
 
 using namespace std;
 
+class ClientNode; // NUEVO 
+typedef ClientNode* PtrClient; // SUBI ESTO
+
 class Client {
 private:
     string dni;
@@ -42,7 +45,7 @@ class ClientNode {
 };
 
 class Clients {
-    typedef ClientNode* PtrClient;
+    //typedef ClientNode* PtrClient;
 
 private:
     PtrClient front;

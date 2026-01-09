@@ -106,3 +106,72 @@ int Orders::size() {
     return count;
 }
 
+//modificarPlato
+bool Orders::modifyDish(int oldCodeDish, int newCodeDish, const std::string& newNotes) {
+    if (isEmpty()) return false;
+
+    const MenuItem* newItem = findMenuItem(newCodeDish);
+    if (newItem == nullptr) return false;
+
+    OrderPtr tempStack = nullptr;
+    bool found = false;
+    Order modifiedOrder(newCodeDish, newItem->getPrice(), newNotes);
+
+    while (!isEmpty()) {
+        Order topOrder;
+        pop(topOrder);
+
+        if (!found && topOrder.getDishCode() == oldCodeDish) {
+            found = true;
+            // No reinsertamos el pedido viejo
+        } else {
+            OrderPtr tempNode = new OrderNode;
+            tempNode->info = topOrder;
+            tempNode->next = tempStack;
+            tempStack = tempNode;
+        }
+    }
+
+    while (tempStack != nullptr) {
+        OrderPtr temp = tempStack;
+        //push(temp->info.getDishCode(), temp->info.getNotes());
+        push2(temp->info.getDishCode(), temp->info.getPrice(), temp->info.getNotes());
+
+        
+        tempStack = tempStack->next;
+        delete temp;
+    }
+
+    if (found) {
+        push2(modifiedOrder.getDishCode(), modifiedOrder.getPrice(), modifiedOrder.getNotes());
+
+		//push(modifiedOrder.getDishCode(), modifiedOrder.getNotes());
+    }
+
+    return found;
+}
+
+// verifica si la pila contiene el plato
+bool Orders::containsDish(int code) const {
+    OrderPtr current = top; // Comienza desde el tope de la pila
+    while (current != nullptr) {
+        if (current->info.getDishCode() == code) {
+            return true; // Si encuentra el código, devuelve true
+        }
+        current = current->next; // Avanza al siguiente nodo
+    }
+    return false; // Si recorre toda la pila y no lo encuentra, devuelve false
+}
+
+
+  // Versión extendida 
+bool Orders::push2(int dishCode, double price, const string& notes) {
+    if (isFull()) return false;
+    Order nuevo(dishCode, price, notes);
+    OrderNode* nuevoNodo = new OrderNode;
+    nuevoNodo->info = nuevo;
+    nuevoNodo->next = top;
+    top = nuevoNodo;
+    return true;
+}
+

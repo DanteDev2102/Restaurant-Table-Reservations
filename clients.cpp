@@ -85,11 +85,11 @@ bool Clients::dequeue(Client& value) {
     return false;
 }
 
-Clients::PtrClient Clients::getFront() {
+PtrClient Clients::getFront() {
     return front;
 }
 
-Clients::PtrClient Clients::getRear() {
+PtrClient Clients::getRear() {
     return rear;
 }
 
