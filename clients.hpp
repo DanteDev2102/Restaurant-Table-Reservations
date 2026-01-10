@@ -66,6 +66,7 @@ public:
     void showQueue(bool isWaitingList);
     bool isTableOccupied(int tableNum);
     bool isClientInList(string dniCheck);
+    bool removeClientByTable(int tableNum);
     ClientNode* getNext(ClientNode* p) const;
     void setNext(ClientNode* p, ClientNode* nextNode);
 };

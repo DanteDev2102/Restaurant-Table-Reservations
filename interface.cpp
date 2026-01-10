@@ -349,55 +349,64 @@ void CmdInterface::processChoice(int choice) {
             break;
         }
         
-        case 11: {
+       case 11: {
             cout << "\n--- CIERRE DEL DIA Y CAMBIO DE FECHA ---" << endl;
             cout << "Dia actual: " << currentSystemDay << endl;
             
-            // 1. Advertencia
-            cout << "\n[!] ADVERTENCIA: Al cambiar el dia, se vaciara el restaurante." << endl;
-            cout << "    - Se eliminaran los clientes en espera." << endl;
-            cout << "    - Se levantaran los clientes de las mesas." << endl;
-            cout << "¿Seguro desea continuar? (1: Si / 0: No): ";
-            int opc; 
-			cin >> opc;
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            // 1. REPORTE Z (Facturación)
+            cout << "\nGenerating Z-Cut Report (Cierre de Caja)..." << endl;
+            cout << "---------------------------------------------" << endl;
+            
+            if (invoices.isEmpty()) {
+                cout << ">> No se generaron facturas hoy." << endl;
+            } else {
+                double granTotal = 0.0;
+                int countFacturas = 0;
+                
+                auto nodoFactura = invoices.getFirst(); 
+                
+                cout << left << setw(10) << "MESA" << setw(20) << "CLIENTE" << "MONTO" << endl;
+                cout << "---------------------------------------------" << endl;
+                
+                while (nodoFactura != nullptr) {
+                    Invoice info = invoices.getInfo(nodoFactura);
+                    cout << left << setw(10) << info.getTable() 
+                         << setw(20) << info.getClientName() 
+                         << "Bs. " << fixed << setprecision(2) << info.getTotal() << endl;
+                    
+                    granTotal += info.getTotal();
+                    countFacturas++;
+                    nodoFactura = invoices.getNext(nodoFactura);
+                }
+                cout << "---------------------------------------------" << endl;
+                cout << "TOTAL DEL DIA (" << currentSystemDay << "): Bs. " << granTotal << endl;
+                cout << "CANTIDAD DE VENTAS: " << countFacturas << endl;
+            }
+
+            // 2. Confirmar Limpieza
+            cout << "\n[!] ADVERTENCIA: Se eliminaran todos los clientes (Mesas/Cola)." << endl;
+            cout << "¿Confirmar cierre? (1: Si / 0: No): ";
+            int opc; cin >> opc;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             
             if (opc != 1) {
-                cout << ">> Operacion cancelada." << endl;
+                cout << ">> Cancelado." << endl;
                 system("pause"); break;
             }
             
-            // 2. Pedir nuevo día
-            string nuevoDia = readValidDay("Ingrese el nuevo dia de operacion: ");
+            string nuevoDia = readValidDay("Ingrese el nuevo dia: ");
             
-            // 3. LIMPIEZA TOTAL (El "Cierre de Caja")
-            cout << "\n>> Realizando cierre del dia " << currentSystemDay << "..." << endl;
+            // 3. LIMPIEZA TOTAL (Usando dequeue, respeta Cola)
+            Client basura;
+            Invoice basuraInv;
             
-            Client basura; // Variable temporal para sacar gente
+            while (!waitingQueue.isEmpty()) waitingQueue.dequeue(basura);
+            while (!clientsList.isEmpty()) clientsList.dequeue(basura);
+            while (!invoices.isEmpty()) invoices.removeFromBeginning(basuraInv);
             
-            // Vaciamos la Cola de Espera
-            int contCola = 0;
-            while (!waitingQueue.isEmpty()) {
-                waitingQueue.dequeue(basura);
-                contCola++;
-            }
-            
-            // Vaciamos las Mesas (Clientes comiendo)
-            int contMesas = 0;
-            while (!clientsList.isEmpty()) {
-                clientsList.dequeue(basura);
-                contMesas++;
-            }
-            
-            // 4. Actualizar Variable Global
             currentSystemDay = nuevoDia;
             
-            cout << ">> Limpieza completada." << endl;
-            cout << "   - " << contCola << " personas retiradas de la cola." << endl;
-            cout << "   - " << contMesas << " mesas liberadas." << endl;
-            cout << "---------------------------------------------" << endl;
-            cout << ">> EXITO: SISTEMA INICIADO PARA EL DIA: " << currentSystemDay << endl;
-            
+            cout << ">> SISTEMA REINICIADO PARA: " << currentSystemDay << endl;
             system("pause");
             break;
         }
@@ -605,8 +614,8 @@ void CmdInterface::processChoice(int choice) {
 		    break;
 		}
 
-		case 15: {
-			    cout << "\n--- SERVIR PLATILLOS Y GENERAR FACTURA ---" << endl;
+	case 15: {
+			    cout << "\n--- SERVIR PLATILLOS (ENTREGA) ---" << endl;
 			
 			    if (clientsList.isEmpty()) {
 			        cout << "No hay clientes en mesas." << endl;
@@ -615,7 +624,7 @@ void CmdInterface::processChoice(int choice) {
 			    }
 			
 			    int maxMesas = app.getQtyTables();
-			    int tableSearch = readIntegers("Digite la mesa del cliente: ", 1, maxMesas);
+			    int tableSearch = readIntegers("Digite la mesa a servir: ", 1, maxMesas);
 			
 			    ClientNode* aux = clientsList.getFront();
 			    bool found = false;
@@ -625,64 +634,119 @@ void CmdInterface::processChoice(int choice) {
 			
 			        if (cliente.getTable() == tableSearch) {
 			            found = true;
-			
 			            Orders& pedidos = cliente.getOrders();
+			            
 			            if (pedidos.isEmpty()) {
-			                cout << "El cliente no tiene pedidos registrados." << endl;
-			                break;
+			                cout << "[!] Esta mesa no tiene pedidos pendientes." << endl;
+			                break; 
 			            }
 			
-			            cout << "\n>> Sirviendo platillos para cliente: " 
-			                 << cliente.getName() << " (Mesa " << cliente.getTable() << ")" << endl;
-			
-			            // Crear copia profunda de pedidos para la factura
-			            Orders copiaPedidos = pedidos; 
-			
-			            // Reportar lo servido
-			            cout << "\n--- PLATILLOS SERVIDOS ---" << endl;
-			            Order servido;
+			            cout << "\n>> Entregando pedidos a: " << cliente.getName() << endl;
+			            cout << "--- PLATILLOS ---" << endl;
+			            
+			            // Solo mostramos sin borrar la pila (usamos copia)
+			            Orders copia = pedidos; 
+			            Order item;
 			            int i = 1;
-			            while (pedidos.pop(servido)) {
-			                const MenuItem* item = findMenuItem(servido.getDishCode());
-			                string nombre = (item != nullptr) ? item->getName() : "Desconocido";
-			
-			                cout << i++ << ". " << nombre
-			                     << " (Codigo: " << servido.getDishCode()
-			                     << ", Precio: Bs. " << servido.getPrice()
-			                     << ", Notas: " << servido.getNotes() << ")" << endl;
+			            while (copia.pop(item)) {
+			                const MenuItem* m = findMenuItem(item.getDishCode());
+			                string n = (m != nullptr) ? m->getName() : "Unknown";
+			                cout << i++ << ". " << n << " (" << item.getNotes() << ")" << endl;
 			            }
-			
-			            cout << "Total a pagar: Bs. " << fixed << setprecision(2) 
-			                 << cliente.getTotal() << endl;
-			
-			            // Generar factura
-			            Invoice factura(
-			                cliente.getDni(),
-			                cliente.getName(),
-			                cliente.getTable(),
-			                cliente.getDay(),
-			                copiaPedidos,   // copia de pedidos
-			                cliente.getTotal()
-			            );
-			
-			            if (invoices.insertAtBeginning(factura)) {
-			                cout << ">> Factura generada y almacenada exitosamente." << endl;
-			            } else {
-			                cout << ">> Error: No se pudo almacenar la factura." << endl;
-			            }
-			
-			            break; // salir del bucle, ya se atendió la mesa
+			            
+			            cout << "\n>> [OK] Comida entregada. Buen provecho." << endl;
+			            break; 
 			        }
 			        aux = clientsList.getNext(aux);
 			    }
 			
-			    if (!found) {
-			        cout << "Cliente no encontrado en mesas." << endl;
+			    if (!found) cout << "No se encontro la mesa " << tableSearch << "." << endl;
+			    system("pause");
+			    break;
+		}
+		
+		case 16: {
+			    cout << "\n--- COBRAR CUENTA Y LIBERAR MESA ---" << endl;
+			
+			    if (clientsList.isEmpty()) {
+			        cout << "No hay clientes en mesas." << endl;
+			        system("pause");
+			        break;
 			    }
+			
+			    int maxMesas = app.getQtyTables();
+			    int tableSearch = readIntegers("Digite la mesa a cobrar: ", 1, maxMesas);
+			
+                // Verificar visualmente si existe
+			    bool mesaOcupada = clientsList.isTableOccupied(tableSearch);
+			    if (!mesaOcupada) {
+			        cout << ">> Error: La mesa " << tableSearch << " ya esta vacia." << endl;
+                    system("pause");
+                    break;
+			    }
+
+                // Obtener datos del cliente antes de borrarlo
+                Client clienteCobrar;
+                ClientNode* aux = clientsList.getFront();
+                while(aux != nullptr) {
+                    if (clientsList.getInfo(aux).getTable() == tableSearch) {
+                        clienteCobrar = clientsList.getInfo(aux);
+                        break;
+                    }
+                    aux = clientsList.getNext(aux);
+                }
+                
+                // Mostrar la cuenta
+	            Orders& pedidos = clienteCobrar.getOrders();
+	            cout << "\n>> Generando factura para: " << clienteCobrar.getName() << endl;
+	            
+	            // Detalle
+	            cout << "\n--- FACTURA FINAL ---" << endl;
+	            Orders copiaParaMostrar = pedidos; 
+	            Order itemOrder;
+	            
+	            while (copiaParaMostrar.pop(itemOrder)) {
+	                const MenuItem* menuItem = findMenuItem(itemOrder.getDishCode());
+	                string platoName = (menuItem != nullptr) ? menuItem->getName() : "Unknown";
+	                cout << "- " << platoName << " ... Bs. " << itemOrder.getPrice() << endl;
+	            }
+                
+                double totalPagar = clienteCobrar.getTotal();
+	            cout << "--------------------------" << endl;
+	            cout << "TOTAL A PAGAR: Bs. " << fixed << setprecision(2) << totalPagar << endl;
+	            cout << "--------------------------" << endl;
+	
+	            // Guardar en Historial de Facturas (Invoices)
+                Orders copiaParaFactura = pedidos; 
+	            Invoice factura(
+	                clienteCobrar.getDni(),
+	                clienteCobrar.getName(),
+	                clienteCobrar.getTable(),
+	                clienteCobrar.getDay(),
+	                copiaParaFactura,
+	                totalPagar
+	            );
+	
+	            if (invoices.insertAtBeginning(factura)) {
+	                cout << ">> Factura guardada en sistema." << endl;
+                    
+                    // AQUI OCURRE LA SALIDA DEL CLIENTE (USANDO LA FUNCION QUE RESPETA LA COLA)
+                    // Asegurate de haber pegado removeClientByTable en clients.cpp como vimos antes
+                    if (clientsList.removeClientByTable(tableSearch)) {
+                        cout << ">> [MESA " << tableSearch << " LIBERADA EXITOSAMENTE]" << endl;
+                        cout << ">> El cliente se ha retirado." << endl;
+                    } else {
+                        cout << ">> Error critico al liberar mesa." << endl;
+                    }
+                    
+	            } else {
+	                cout << ">> Error: Memoria llena (Facturas)." << endl;
+	            }
 			
 			    system("pause");
 			    break;
 		}
+		
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
 			system("pause");
@@ -718,6 +782,7 @@ void CmdInterface::displayMenu() const {
     cout << "13. Modificar pedido de un cliente" << endl;
     cout << "14. Reporte pedidos" << endl;
     cout << "15. Servir pedidos" << endl;
+    cout << "16. Cobrar y liberar mesa" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "0. Salir" << endl;
 	cout << "Ingrese su opcion" << endl;
