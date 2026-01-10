@@ -4,6 +4,7 @@
 #include "orders.hpp"
 #include "menu.hpp"
 #include "clients.hpp"
+#include "invoices.hpp"
 
 #include <limits>
 #include <iomanip>
@@ -423,8 +424,16 @@ void CmdInterface::processChoice(int choice) {
 		
 		            char continuar = 's';
 		            while (continuar == 's' || continuar == 'S') {
+		            	
 		                int dishCode = readIntegers("Codigo del platillo (1-5): ", 1, 5);
-		
+						const MenuItem* item = findMenuItem(dishCode);
+						
+                		string nombre = (item != nullptr) ? item->getName() : "Desconocido";
+                		double price = (item != nullptr) ? item->getPrice() : 0.00;
+                		
+                		cout << "------------------------------------------------------"<<endl;
+                		cout << " Platillo: "<< nombre <<" || " << "Precio: "<<price<<" Bs."<<endl;
+                		cout << "------------------------------------------------------"<<endl;
 		                string notes;
 		                cout << "Notas del pedido (preferencias): ";
 		                getline(cin, notes);
@@ -491,7 +500,7 @@ void CmdInterface::processChoice(int choice) {
 		            // Mostrar nombres platos y confirmar
 		            cout << "Modificando \"" << oldItem->getName() << "\" por \"" << newItem->getName() << "\"..." << endl;
 		            char confirmar;
-		            cout << "¿Está seguro de realizar esta modificacion? (s/n): ";
+		            cout << "¿Esta seguro de realizar esta modificacion? (s/n): ";
 		            cin >> confirmar;
 		            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		
@@ -596,9 +605,84 @@ void CmdInterface::processChoice(int choice) {
 		    break;
 		}
 
-
-
-
+		case 15: {
+			    cout << "\n--- SERVIR PLATILLOS Y GENERAR FACTURA ---" << endl;
+			
+			    if (clientsList.isEmpty()) {
+			        cout << "No hay clientes en mesas." << endl;
+			        system("pause");
+			        break;
+			    }
+			
+			    int maxMesas = app.getQtyTables();
+			    int tableSearch = readIntegers("Digite la mesa del cliente: ", 1, maxMesas);
+			
+			    ClientNode* aux = clientsList.getFront();
+			    bool found = false;
+			
+			    while (aux != nullptr) {
+			        Client& cliente = clientsList.getInfo(aux);
+			
+			        if (cliente.getTable() == tableSearch) {
+			            found = true;
+			
+			            Orders& pedidos = cliente.getOrders();
+			            if (pedidos.isEmpty()) {
+			                cout << "El cliente no tiene pedidos registrados." << endl;
+			                break;
+			            }
+			
+			            cout << "\n>> Sirviendo platillos para cliente: " 
+			                 << cliente.getName() << " (Mesa " << cliente.getTable() << ")" << endl;
+			
+			            // Crear copia profunda de pedidos para la factura
+			            Orders copiaPedidos = pedidos; 
+			
+			            // Reportar lo servido
+			            cout << "\n--- PLATILLOS SERVIDOS ---" << endl;
+			            Order servido;
+			            int i = 1;
+			            while (pedidos.pop(servido)) {
+			                const MenuItem* item = findMenuItem(servido.getDishCode());
+			                string nombre = (item != nullptr) ? item->getName() : "Desconocido";
+			
+			                cout << i++ << ". " << nombre
+			                     << " (Codigo: " << servido.getDishCode()
+			                     << ", Precio: Bs. " << servido.getPrice()
+			                     << ", Notas: " << servido.getNotes() << ")" << endl;
+			            }
+			
+			            cout << "Total a pagar: Bs. " << fixed << setprecision(2) 
+			                 << cliente.getTotal() << endl;
+			
+			            // Generar factura
+			            Invoice factura(
+			                cliente.getDni(),
+			                cliente.getName(),
+			                cliente.getTable(),
+			                cliente.getDay(),
+			                copiaPedidos,   // copia de pedidos
+			                cliente.getTotal()
+			            );
+			
+			            if (invoices.insertAtBeginning(factura)) {
+			                cout << ">> Factura generada y almacenada exitosamente." << endl;
+			            } else {
+			                cout << ">> Error: No se pudo almacenar la factura." << endl;
+			            }
+			
+			            break; // salir del bucle, ya se atendió la mesa
+			        }
+			        aux = clientsList.getNext(aux);
+			    }
+			
+			    if (!found) {
+			        cout << "Cliente no encontrado en mesas." << endl;
+			    }
+			
+			    system("pause");
+			    break;
+		}
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
 			system("pause");
@@ -611,7 +695,7 @@ void CmdInterface::displayMenu() const {
     cout << "          MENU PRINCIPAL         " << endl;
     cout << "===============================" << endl;
     cout << "-------------------------------" << endl;
-    cout << "	RESERVAS" << endl;
+    cout << "	   RESERVAS" << endl;
     cout << "-------------------------------" << endl;
     cout << "1. Configurar Cantidad de Mesas" << endl;
     cout << "2. Reservar una mesa" << endl;
@@ -622,17 +706,18 @@ void CmdInterface::displayMenu() const {
     cout << "7. Listar Mesas / Cola de Espera" << endl;
     cout << "8. Listar Reservas Canceladas" << endl;
     cout << "-------------------------------" << endl;
-    cout << "	CLIENTES" << endl;
+    cout << "	   CLIENTES" << endl;
     cout << "-------------------------------" << endl;
     cout << "9. Registrar llegada (Mesa/Cola)" << endl;
     cout << "10. Sentar Cliente (Cola -> Mesa)" << endl;
     cout << "11. Cambiar Dia" << endl;
     cout << "-------------------------------" << endl;
-    cout << "	PEDIDOS" << endl;
+    cout << "	   PEDIDOS" << endl;
     cout << "-------------------------------" << endl;
     cout << "12. Tomar pedidos" << endl;
     cout << "13. Modificar pedido de un cliente" << endl;
     cout << "14. Reporte pedidos" << endl;
+    cout << "15. Servir pedidos" << endl;
 	cout << "-------------------------------" << endl;
 	cout << "0. Salir" << endl;
 	cout << "Ingrese su opcion" << endl;
