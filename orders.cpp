@@ -175,3 +175,45 @@ bool Orders::push2(int dishCode, double price, const string& notes) {
     return true;
 }
 
+// Constructor de copia (copia profunda)
+Orders::Orders(const Orders& other) {
+    top = nullptr;
+    OrderNode* current = other.top;
+    vector<Order> temp;
+
+    while (current != nullptr) {
+        temp.push_back(current->info);
+        current = current->next;
+    }
+
+    for (auto it = temp.rbegin(); it != temp.rend(); ++it) {
+        push(it->getDishCode(), it->getNotes());
+    }
+}
+
+
+// Operador de asignación (copia profunda)
+Orders& Orders::operator=(const Orders& other) {
+    if (this != &other) {
+        Order dummy;
+        while (!isEmpty()) {
+            pop(dummy);
+        }
+
+        OrderNode* current = other.top;
+        vector<Order> temp;
+
+        while (current != nullptr) {
+            temp.push_back(current->info);
+            current = current->next;
+        }
+
+        for (auto it = temp.rbegin(); it != temp.rend(); ++it) {
+            push(it->getDishCode(), it->getNotes());
+        }
+    }
+    return *this;
+}
+
+
+

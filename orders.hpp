@@ -2,6 +2,7 @@
 
 #include <string>
 #include "menu.hpp"
+#include <vector>
 
 using namespace std;
 
@@ -43,6 +44,9 @@ private:
 public:
     Orders();
     ~Orders();
+    
+    Orders(const Orders& other);               // Constructor de copia
+    Orders& operator=(const Orders& other);    // Operador de asignación
 
     bool isEmpty();
     bool isFull();
@@ -65,7 +69,6 @@ public:
     
     // verifica si la pila contiene el plato
     bool containsDish(int code) const;
-
 
 };
 

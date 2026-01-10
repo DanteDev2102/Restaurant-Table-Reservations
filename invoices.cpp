@@ -1,7 +1,7 @@
 #include "invoices.hpp"
 
 // =======================
-// ImplementaciÃ³n de Invoice
+// Implementacion de Invoice
 // =======================
 
 Invoice::Invoice() : table(0), total(0.0) {}
@@ -24,7 +24,7 @@ void Invoice::setOrders(const Orders& orders) { this->orders = orders; }
 void Invoice::setTotal(double total) { this->total = total; }
 
 // =======================
-// ImplementaciÃ³n de Invoices
+// Implementacion de Invoices
 // =======================
 
 Invoices::Invoices() {
@@ -135,5 +135,27 @@ Invoices::PtrInvoice Invoices::searchByDni(const string& dni) {
         current = current->next;
     }
     return nullptr;
+}
+
+
+Invoice::Invoice(const Invoice& other)
+    : dni(other.dni),
+      clientName(other.clientName),
+      table(other.table),
+      day(other.day),
+      orders(other.orders),   //  aquí se invoca el constructor de copia profundo de Orders
+      total(other.total) {}
+      
+      
+Invoice& Invoice::operator=(const Invoice& other) {
+    if (this != &other) { // evitar auto-asignación
+        dni = other.dni;
+        clientName = other.clientName;
+        table = other.table;
+        day = other.day;
+        orders = other.orders;   //  usa el operador profundo de Orders
+        total = other.total;
+    }
+    return *this;
 }
 

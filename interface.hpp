@@ -7,6 +7,7 @@
 #include "application.hpp"
 #include "reservation.hpp"
 #include "clients.hpp" // <--- IMPORTANTE: Incluir la librería de tu equipo
+#include "invoices.hpp"
 
 using namespace std;
 
@@ -19,6 +20,7 @@ class CmdInterface {
 		Clients clientsList;   // Lista para gente en mesas
 		Clients waitingQueue;  // Lista para gente en espera
 		// ----------------------------------
+		Invoices invoices; //Lista de facturas
 		string currentSystemDay;
 		void displayMenu() const;
 		void processChoice(int choice);

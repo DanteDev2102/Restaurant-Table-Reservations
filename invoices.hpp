@@ -17,6 +17,9 @@ private:
 public:
     Invoice();
     Invoice(string dni, string clientName, int table, string day, Orders orders, double total);
+    
+    Invoice(const Invoice& other);              // Constructor de copia
+    Invoice& operator=(const Invoice& other);   // Operador de asignación
 
     // Getters
     string getDni() const;
@@ -57,7 +60,7 @@ public:
     PtrInvoice getFirst();
     void setFirst(PtrInvoice p);
 
-    // Operaciones bÃ¡sicas
+    // Operaciones basicas
     bool isEmpty();
     bool isFull();
     bool insertAtBeginning(const Invoice& value);
