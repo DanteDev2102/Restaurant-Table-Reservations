@@ -131,3 +131,30 @@ bool Reservations::isEmpty() {
     return getFirst() == nullptr;
 }
 
+bool Reservations::consumeReservation(Reservation* ptr) { //inhabilitar reservas despues de atendido
+    if (ptr == nullptr || isEmpty()) {
+        return false;
+    }
+
+    // Caso 1: Es el primero de la lista
+    if (ptr == first) {
+        first = first->getNext();
+        delete ptr;
+        return true;
+    }
+
+    // Caso 2: Está en el resto de la lista
+    Reservation* prev = first;
+    while (prev != nullptr) {
+        if (prev->getNext() == ptr) {
+            prev->next = ptr->getNext(); // Saltamos el nodo
+            delete ptr; // Lo borramos de la memoria
+            return true;
+        }
+        prev = prev->getNext();
+    }
+
+    return false; // No se encontró
+}
+
+
