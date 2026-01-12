@@ -665,7 +665,7 @@ void CmdInterface::displayMenu() const {
     cout << "2. Reservar una mesa" << endl;
     cout << "3. Consultar Reserva por Cedula" << endl;
     cout << "4. Actualizar Reserva" << endl;
-    cout << "5. Reporte de Reservas" << endl;
+    cout << "5. Reporte de Reservas por dia" << endl;
     cout << "6. Cancelar Reserva" << endl;
     cout << "7. Listar Reservas" << endl;
     cout << "8. Listar Reservas Canceladas" << endl;
