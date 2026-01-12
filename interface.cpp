@@ -356,6 +356,43 @@ void CmdInterface::processChoice(int choice) {
 		                cout << ">> Error: El cliente no tiene ese plato en su pedido." << endl;
 		                break;
 		            }
+		
+		            // Mostrar nombres platos y confirmar
+		            cout << "Modificando \"" << oldItem->getName() << "\" por \"" << newItem->getName() << "\"..." << endl;
+		            char confirmar;
+		            cout << "¿Esta seguro de realizar esta modificacion? (s/n): ";
+		            cin >> confirmar;
+		            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		
+		            if (confirmar != 's' && confirmar != 'S') {
+		                cout << ">> Modificacion cancelada por el usuario." << endl;
+		                break;
+		            }
+		
+		            string newNotes;
+		            cout << "Nuevas notas del pedido: ";
+		            getline(cin, newNotes);
+		
+		            bool ok = cliente.getOrders().modifyDish(oldCodeDish, newCodeDish, newNotes);
+		            if (ok) {
+		                cliente.setTotal(cliente.getOrders().totalPrice());
+		                cout << ">> Pedido modificado exitosamente." << endl;
+		            } else {
+		                cout << ">> Error inesperado al modificar el pedido." << endl;
+		            }
+		
+		            break;
+		        }
+		        aux = clientsList.getNext(aux);
+		    }
+		
+		    if (!foundClient) {
+		        cout << "Cliente no encontrado en mesa." << endl;
+		    }
+		
+		    system("pause");
+		    break;
+		}
 
 		case 14: {
 		    cout << "\n--- REPORTE DE PEDIDOS POR MESA ---" << endl;
