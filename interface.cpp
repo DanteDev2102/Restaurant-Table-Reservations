@@ -319,41 +319,43 @@ void CmdInterface::processChoice(int choice) {
 		    break;
 		}
 		
-		case 13: { // Modificar Pedidos (ANTES ERA 14)
-		    cout << "\n--- MODIFICAR PEDIDO ---" << endl;
+	case 13: {
+		    
+		    cout << "\n--- MODIFICAR PEDIDO DE UN CLIENTE ---" << endl;
+		
 		    if (clientsList.isEmpty()) {
 		        cout << "No hay clientes en mesas." << endl;
-		        system("pause"); break;
+		        system("pause");
+		        break;
 		    }
+		
 		    int maxMesas = app.getQtyTables();
 		    int tableSearch = readIntegers("Indique la mesa del cliente: ", 1, maxMesas);
+		
 		    ClientNode* aux = clientsList.getFront();
 		    bool foundClient = false;
+		
 		    while (aux != nullptr) {
 		        Client& cliente = clientsList.getInfo(aux);
 		        if (cliente.getTable() == tableSearch) {
 		            foundClient = true;
+		
 		            int oldCodeDish = readIntegers("Codigo del plato a modificar: ", 1, MENU_SIZE);
 		            int newCodeDish = readIntegers("Nuevo codigo del plato: ", 1, MENU_SIZE);
-		            if (!cliente.getOrders().containsDish(oldCodeDish)) {
-		                cout << ">> Error: El cliente no tiene ese plato." << endl;
+		
+		            const MenuItem* oldItem = findMenuItem(oldCodeDish); 
+		            const MenuItem* newItem = findMenuItem(newCodeDish); 
+		
+		            if (!oldItem || !newItem) { 
+		                cout << ">> Error: Codigo de plato invalido." << endl; 
 		                break;
 		            }
-		            string newNotes;
-		            cout << "Nuevas notas del pedido: ";
-		            getline(cin, newNotes);
-		            if (cliente.getOrders().modifyDish(oldCodeDish, newCodeDish, newNotes)) {
-		                cliente.setTotal(cliente.getOrders().totalPrice());
-		                cout << ">> Pedido modificado exitosamente." << endl;
-		            } else cout << ">> Error al modificar." << endl;
-		            break;
-		        }
-		        aux = clientsList.getNext(aux);
-		    }
-		    if (!foundClient) cout << "Cliente no encontrado." << endl;
-		    system("pause");
-		    break;
-		}
+		
+		            // Verificar si el plato viejo está en la pila
+		            if (!cliente.getOrders().containsDish(oldCodeDish)) {
+		                cout << ">> Error: El cliente no tiene ese plato en su pedido." << endl;
+		                break;
+		            }
 
 		case 14: {
 		    cout << "\n--- REPORTE DE PEDIDOS POR MESA ---" << endl;
