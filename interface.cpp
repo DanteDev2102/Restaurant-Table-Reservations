@@ -274,47 +274,61 @@ void CmdInterface::processChoice(int choice) {
             break;
         }
         
-        // --- AQUI EMPIEZA EL CAMBIO DE NUMERACION ---
-        // El Case 12 "Cambiar Dia" fue movido al final (Case 17)
-        // Ahora el 12 es "Tomar Pedidos"
-        
-        case 12: { // Tomar Pedidos (ANTES ERA 13)
+         case 12: { //Tomar Pedidos
 			cout << "\n--- TOMAR PEDIDOS ---" << endl;
+		
 		    if (clientsList.isEmpty()) {
 		        cout << "No hay clientes en mesas." << endl;
-		        system("pause"); break;
+		        system("pause");
+		        break;
 		    }
+		
 		    int maxMesas = app.getQtyTables();
 		    int tableSearch = readIntegers("Digite la mesa del cliente: ", 1, maxMesas); 
+		
 		    ClientNode* aux = clientsList.getFront();
 		    bool found = false;
+		
 		    while (aux != nullptr) {
 		        Client& cliente = clientsList.getInfo(aux); 
 		        if (cliente.getTable() == tableSearch) {
 		            found = true;
+
 		            char continuar = 's';
 		            while (continuar == 's' || continuar == 'S') {
+
 		                int dishCode = readIntegers("Codigo del platillo (1-5): ", 1, 5);
+
 						const MenuItem* item = findMenuItem(dishCode);
+
                 		string nombre = (item != nullptr) ? item->getName() : "Desconocido";
                 		double price = (item != nullptr) ? item->getPrice() : 0.00;
-                		cout << "Platillo: "<< nombre <<" || " << "Precio: "<<price<<" Bs."<<endl;
+
+                		cout << "------------------------------------------------------"<<endl;
+                		cout << " Platillo: "<< nombre <<" || " << "Precio: "<<price<<" Bs."<<endl;
+                		cout << "------------------------------------------------------"<<endl;
 		                string notes;
-		                cout << "Notas del pedido: ";
+		                cout << "Notas del pedido (preferencias): ";
 		                getline(cin, notes);
+		
 		                if (cliente.getOrders().push(dishCode, notes)) {
 		                    cout << "Pedido agregado exitosamente." << endl;
 		                    cliente.setTotal(cliente.getOrders().totalPrice());
-		                } else cout << "Error: Platillo no encontrado." << endl;
-		                cout << "¿Desea agregar otro pedido? (s/n): ";
+		                } else {
+		                    cout << "Error: Platillo no encontrado." << endl;
+		                }
+		
+		                cout << "¿Desea agregar otro pedido para este cliente? (s/n): ";
 		                cin >> continuar;
 		                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		            }		
-		            break; 
+		            break; // salir del bucle, ya se atendió la mesa
 		        }
 		        aux = clientsList.getNext(aux);
 		    }
-		    if (!found) cout << "Cliente no encontrado en mesas." << endl;
+		    if (!found) {
+		        cout << "Cliente no encontrado en mesas." << endl;
+		    }
 		    system("pause");
 		    break;
 		}
