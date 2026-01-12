@@ -157,4 +157,15 @@ bool Reservations::consumeReservation(Reservation* ptr) { //inhabilitar reservas
     return false; // No se encontró
 }
 
-
+// Buscar reserva especifica para una persona en una fecha
+Reservation* Reservations::searchReservationByDniAndDate(const string& dni, const string& date) {
+    Reservation* p = getFirst();
+    while (p != nullptr) {
+        // Comparamos DNI y Fecha (usando toLower para evitar errores de mayúsculas)
+        if (p->getDni() == dni && toLower(p->getDate()) == toLower(date)) {
+            return p; // ¡Encontró la reserva correcta para HOY!
+        }
+        p = p->getNext();
+    }
+    return nullptr; // No tiene reserva para este día específico
+}

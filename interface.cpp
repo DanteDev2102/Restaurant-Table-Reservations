@@ -181,15 +181,19 @@ void CmdInterface::processChoice(int choice) {
 		
 		case 10: { // Registrar Llegada
             cout << "\n--- RECEPCION (DIA: " << currentSystemDay << ") ---" << endl;
+            
             string dni, name, day;
             int numMesa = 0;
+            
             int maxMesas = app.getQtyTables();
             if (maxMesas == 0) {
                 cout << "[!] ERROR: Configure mesas primero (Opc 1)." << endl;
                 system("pause"); break; 
             }
+
             dni = readDNI("Ingrese Cedula del Cliente: ");
 
+            // Validar si ya está adentro (para no duplicar)
             if (waitingQueue.isClientInList(dni)) {
                 cout << "\n[!] EL CLIENTE YA HIZO CHECK-IN." << endl;
                 system("pause"); break;
@@ -198,22 +202,27 @@ void CmdInterface::processChoice(int choice) {
                 cout << "\n[!] EL CLIENTE YA ESTA COMIENDO." << endl;
                 system("pause"); break;
             }
-
-            Reservation* res = list1.searchReservationByDni(dni, list1.getFirst());
+            // 1. Buscamos DIRECTAMENTE si tiene reserva para HOY
+         
+            Reservation* res = list1.searchReservationByDniAndDate(dni, currentSystemDay);
 
             if (res == nullptr) {
+                // Si no encontró para hoy, revisamos si tiene reserva OTRO DIA para avisarle
+                Reservation* resWrongDay = list1.searchReservationByDni(dni, list1.getFirst());
+                
                 cout << "\n[!] ACCESO DENEGADO." << endl;
-                cout << ">> Cliente sin reserva registrada." << endl;
-                system("pause"); break; 
-            }
-            
-            if (toLower(res->getDate()) != toLower(currentSystemDay)) {
-                cout << "\n[!] RESERVA INVALIDA PARA HOY." << endl;
-                cout << ">> Hoy es: " << currentSystemDay << endl;
-                cout << ">> La reserva del cliente es para: " << res->getDate() << endl;
+                
+                if (resWrongDay != nullptr) {
+                    cout << ">> Usted tiene reserva, PERO NO ES PARA HOY (" << currentSystemDay << ")." << endl;
+                    cout << ">> Su reserva aparece para el dia: " << resWrongDay->getDate() << endl;
+                } else {
+                    cout << ">> Cliente sin ninguna reserva registrada en el sistema." << endl;
+                }
+                
                 system("pause"); break; 
             }
 
+            // 2. Si pasó el filtro, tomamos los datos de la reserva correcta
             name = res->getName();
             numMesa = res->getTable();
             day = res->getDate(); 
@@ -234,6 +243,7 @@ void CmdInterface::processChoice(int choice) {
             } else {
                 cout << ">> Error: Restaurante lleno." << endl;
             }
+            
             system("pause");
             break;
         }

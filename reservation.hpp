@@ -58,6 +58,7 @@ class Reservations {
 		// Buscar reservacion por cedula
     	 Reservation* searchReservationByDni(const string& dni, Reservation* start);
     	 Reservation* findReservationByDate(int table, string date);
+    	 Reservation* searchReservationByDniAndDate(const string& dni, const string& date); //Reserva por cedula y Mesa
     	 
     	 // Contar Reservaciones
     	  int getCount();
