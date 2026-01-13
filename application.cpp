@@ -54,18 +54,22 @@ void Application::updateFunction(Reservations& reservationList) {
 		resultSearch = reservationList.findReservationByDate(searchTable, searchDate);
 		if(resultSearch == nullptr) {
 			cout << "La reservacion buscada no existe" << endl;
-			cout << "Â¿Desea continuar? (s/n) " << endl;
+			cout << "¿Desea continuar? (s/n) " << endl;
 			cin >> continueVar;
 			cin.ignore();
-			if (continueVar == 'n' || continueVar == 'N') {
-			    break;
-			}
-		continue;
+			if (continueVar == 'n' || continueVar == 'N') break;
+		    continue;
 		}
-	break;
+	    break;
 	}
 
 	while(continueVar == 's' || continueVar == 'S') {
+        // 1. Guardamos el ID original ANTES de modificar nada
+        int oldTable = resultSearch->getTable();
+        string oldDate = resultSearch->getDate();
+        string oldID = std::to_string(oldTable) + "_" + toLower(oldDate);
+        // ----------------------------------------------------
+
 		cout << "\nReservacion encontrada!" << endl;
 		cout << "-------------------------" << endl;
 		cout << "Ingrese la actualizacion a hacer para la reserva" << endl;
@@ -79,85 +83,79 @@ void Application::updateFunction(Reservations& reservationList) {
 		cin.ignore();
 
 		switch(selectionVar) {
-			case 1: { // Date and Table Update
+			case 1: { // Date and Table
 				table = readIntegers("Numero de mesa: ", 1, tables);
 				day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
 				name = resultSearch->getName();
 				dni = resultSearch->getDni();
 				peopleQty = resultSearch->getQty();
 				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
-
-				if(resultUpdate) {
-					cout << "Actualizacion exitosa!" << endl;
-				} else {
-					cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
-				}
+				if(resultUpdate) cout << "Actualizacion exitosa!" << endl;
+				else cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
 				break;
 			}
-			case 2: { // Name and DNI Update
+			case 2: { // Name and DNI
 				name = readAlphaString("Nombre del cliente: ");
 				dni = readDNI("Cedula del cliente (8 digitos): ");
 				table = resultSearch->getTable();
 				peopleQty = resultSearch->getQty();
 				day = resultSearch->getDate();
 				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
-				
-				if(resultUpdate) {
-					cout << "Actualizacion exitosa!" << endl;
-				} else {
-					cout << "Ha surgido un error "<< endl;
-				}
+				if(resultUpdate) cout << "Actualizacion exitosa!" << endl;
+				else cout << "Ha surgido un error "<< endl;
 				break;
 			}
-			case 3: { // Quantity of People Attending Update
+			case 3: { // Quantity
 				table = resultSearch->getTable();
 				peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
 				name = resultSearch->getName();
 				dni = resultSearch->getDni();
 				day = resultSearch->getDate();	
 				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
-				
-				if(resultUpdate) {
-					cout << "Actualizacion exitosa!" << endl;
-				} else {
-					cout << "Ha surgido un error "<< endl;
-				}
+				if(resultUpdate) cout << "Actualizacion exitosa!" << endl;
+				else cout << "Ha surgido un error "<< endl;
 				break;
 			}
-			case 4: { // Update all
+			case 4: { // All
 				table = readIntegers("Numero de mesa: ", 1, tables);
 				name = readAlphaString("Nombre del cliente: ");
 				dni = readDNI("Cedula del cliente (8 digitos): ");
 				day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
 				peopleQty = readIntegers("Cantidad de personas (1-8): ", 1, 8);
 				resultUpdate = reservationList.updateReservation(resultSearch, table, peopleQty, name, dni, day);
-				
-				if(resultUpdate) {
-					cout << "Actualizacion exitosa!" << endl;
-				} else {
-					cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
-				}
+				if(resultUpdate) cout << "Actualizacion exitosa!" << endl;
+				else cout << "Error: Ya existe una reserva para esa mesa en ese dia. "<< endl;
 				break;
 			}
-			default: { // Anything else than 1 to 4
-				break;
-			}
+			default: { break; }
 		}
-		if(resultUpdate) {
-			json reservationData = parseToJson(table, name, dni, day, peopleQty);
-			std::string* id = new std::string;
-			*id = std::to_string(table) + "_" + toLower(day);
 
-			updateRecordResult = db->updateRecord("reservations", *id, reservationData);
+		if(resultUpdate) {
+            // Recogemos los datos NUEVOS (ya actualizados en memoria)
+            int newTable = resultSearch->getTable();
+            string newDate = resultSearch->getDate();
+            string newID = std::to_string(newTable) + "_" + toLower(newDate);
+            
+			json reservationData = parseToJson(newTable, resultSearch->getName(), resultSearch->getDni(), newDate, resultSearch->getQty());
+
+            // LOGICA INTELIGENTE: ¿Cambió el ID (Mesa o Fecha)?
+            if (oldID != newID) {
+                // Si cambió, debemos BORRAR el viejo y CREAR el nuevo
+                // porque la base de datos no encuentra el ID nuevo para actualizar
+                db->deleteRecord("reservations", oldID);
+                updateRecordResult = db->createRecord("reservations", newID, reservationData);
+            } else {
+                // Si el ID es igual (solo cambió nombre/dni), hacemos update normal
+			    updateRecordResult = db->updateRecord("reservations", newID, reservationData);
+            }
 
 			if(updateRecordResult) {
 				cout << "Actualizacion guardada en base de datos" << endl;
 			} else {
 				std::cerr << "Error al momento de actualizar en base de datos" << endl;
 			}
-			delete id;
 		}
-	break;
+	    break;
 	}
 }
 
@@ -214,6 +212,11 @@ void Application::deleteFunction(Reservations& reservationList, Reservations& ca
 		getline(cin, _tmp);
 		break;
 	}
+}
+
+bool Application::deleteReservationRecord(int table, string date) { //CASE 15: COME,PAGA Y AL IRSE EL CLIENTE SE VA LA RESERVA DE LA DB
+    string id = std::to_string(table) + "_" + toLower(date);
+    return db->deleteRecord("reservations", id);
 }
 
 void Application::showCancelledReservations(Reservations& cancelledList) {

@@ -50,6 +50,7 @@ class Reservations {
 		bool insertAtBeginning(int table, int qty, string name, string dni, string date);
 		bool updateReservation(Reservation* ptr, int table, int qty, string name, string dni, string date);
 		bool deleteReservation(Reservation* ptr, Reservations& cancelledList);
+		bool consumeReservation(Reservation* ptr); // Borra sin enviar a cancelados
 		
 		// Verifica si Lista esta vacia
 		bool isEmpty();
@@ -57,6 +58,7 @@ class Reservations {
 		// Buscar reservacion por cedula
     	 Reservation* searchReservationByDni(const string& dni, Reservation* start);
     	 Reservation* findReservationByDate(int table, string date);
+    	 Reservation* searchReservationByDniAndDate(const string& dni, const string& date); //Reserva por cedula y Mesa
     	 
     	 // Contar Reservaciones
     	  int getCount();

@@ -169,3 +169,39 @@ void Clients::setNext(ClientNode* p, ClientNode* nextNode) {
         p->next = nextNode;
 }
 
+// Eliminar respetando la estructura FIFO (Usando una cola auxiliar)
+bool Clients::removeClientByTable(int tableNum) {
+    if (isEmpty()) return false;
+
+    bool encontrado = false;
+    
+    // 1. Creamos una cola temporal
+    // Nota: Como estamos dentro de la clase Clients, podemos crear otra instancia
+    Clients colaAux; 
+    Client clienteTemp;
+
+    // 2. Vaciamos la cola ORIGINAL en la AUXILIAR (Filtrando)
+    while (!this->isEmpty()) {
+        this->dequeue(clienteTemp); // Sacamos al primero (FIFO)
+
+        if (clienteTemp.getTable() == tableNum) {
+            // ¡LO ENCONTRAMOS!
+            // Simplemente NO lo metemos en la cola auxiliar.
+            // Al salir de este ciclo, este cliente desaparece.
+            encontrado = true;
+        } else {
+            // No es el que buscamos, lo guardamos en la auxiliar
+            colaAux.enqueue(clienteTemp);
+        }
+    }
+
+    // 3. Restauramos la cola ORIGINAL
+    // Pasamos todos los sobrevivientes de vuelta a "this"
+    while (!colaAux.isEmpty()) {
+        colaAux.dequeue(clienteTemp);
+        this->enqueue(clienteTemp);
+    }
+
+    return encontrado;
+}
+

@@ -131,3 +131,41 @@ bool Reservations::isEmpty() {
     return getFirst() == nullptr;
 }
 
+bool Reservations::consumeReservation(Reservation* ptr) { //inhabilitar reservas despues de atendido
+    if (ptr == nullptr || isEmpty()) {
+        return false;
+    }
+
+    // Caso 1: Es el primero de la lista
+    if (ptr == first) {
+        first = first->getNext();
+        delete ptr;
+        return true;
+    }
+
+    // Caso 2: Está en el resto de la lista
+    Reservation* prev = first;
+    while (prev != nullptr) {
+        if (prev->getNext() == ptr) {
+            prev->next = ptr->getNext(); // Saltamos el nodo
+            delete ptr; // Lo borramos de la memoria
+            return true;
+        }
+        prev = prev->getNext();
+    }
+
+    return false; // No se encontró
+}
+
+// Buscar reserva especifica para una persona en una fecha
+Reservation* Reservations::searchReservationByDniAndDate(const string& dni, const string& date) {
+    Reservation* p = getFirst();
+    while (p != nullptr) {
+        // Comparamos DNI y Fecha (usando toLower para evitar errores de mayúsculas)
+        if (p->getDni() == dni && toLower(p->getDate()) == toLower(date)) {
+            return p; // ¡Encontró la reserva correcta para HOY!
+        }
+        p = p->getNext();
+    }
+    return nullptr; // No tiene reserva para este día específico
+}

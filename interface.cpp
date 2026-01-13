@@ -24,7 +24,6 @@ CmdInterface::CmdInterface() : app(0) {
     cout << ">> Sistema configurado para trabajar el dia: " << currentSystemDay << endl;
     system("pause");
     system("cls");
-	
 }
 
 void CmdInterface::run() {
@@ -33,21 +32,17 @@ void CmdInterface::run() {
 	while (choice != 0) {
 		displayMenu();
 		
-		// Lectura segura del menú
 		if (!(cin >> choice)) {
             cout << "Error: Entrada invalida. Ingrese un numero." << endl;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
             choice = -1;
-            system("pause"); // Pausa si hay error
+            system("pause"); 
             clearScreen();
             continue; 
         }
 
-        // Limpiamos el buffer justo después de leer la opción del menú
-        // Esto evita que el "Enter" del menú afecte a los casos siguientes
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        
         processChoice(choice);
         clearScreen();
 	}
@@ -55,25 +50,18 @@ void CmdInterface::run() {
 
 void CmdInterface::processChoice(int choice) {
 	switch (choice) {
-		case 0:
-			break;
-		case 1:
-			app.configQtyTables();
-			system("pause"); // Pausa al terminar
-			break;
+		case 0: break;
+		case 1: app.configQtyTables(); system("pause"); break;
+		
 		case 2: {
             char continuar = 's';
             int tables = app.getQtyTables();
-            
             if (tables == 0) {
                  cout << "Error: Configure las mesas (Opcion 1) primero." << endl;
-                 system("pause");
-                 break;
+                 system("pause"); break;
             }
-
             int table, peopleQty;
             string name, dni, day;
-            
 		    while (continuar == 's' || continuar == 'S') {
 		    	table = readIntegers("Numero de mesa: ", 1, tables);
 		    	name = readAlphaString("Nombre del cliente: ");
@@ -81,14 +69,13 @@ void CmdInterface::processChoice(int choice) {
 		    	day = readValidDay("Dia de la reserva (Lunes-Viernes): ");
 		    	peopleQty = readIntegers("Cantidad de personas (1-8): ", 1,8);
 		    	
-		    	if(app.createReservation(table, peopleQty, name, dni, day))
-		    	{
+		    	if(app.createReservation(table, peopleQty, name, dni, day)) {
 		    		if(list1.insertAtBeginning(table,peopleQty,name,dni,day)){
 		    			cout <<"Reservacion exitosa"<<endl;
-					} else{
+					} else {
 						cout << "Error: Memoria llena"<< endl;
 					}
-				} else{
+				} else {
 					cout << "Error: Ya existe una reserva para esa mesa en ese dia."<< endl;
 				}
 		        cout << "¿Desea agregar otra reserva? (s/n): ";
@@ -101,28 +88,22 @@ void CmdInterface::processChoice(int choice) {
 		case 3: {
 			if (list1.isEmpty()) {
 			    cout << "No hay reservaciones registradas." << endl;
-			    system("pause");
-			    break;
+			    system("pause"); break;
 			}
-
 			char continuar = 's';
     		while (continuar == 's' || continuar == 'S') {
 	    		string dniSearch;
 	    		cout << "Cedula del cliente: ";
         		getline(cin, dniSearch);
-
 		        if (dniSearch.empty()) {
 		            cout << "Cedula vacia. Intente de nuevo." << endl;
 		            continue;
 		        }
-	
 			    Reservation* startNode = list1.getFirst();
 				bool found = false;
-	
 			    while (startNode != nullptr) {
 			    	Reservation* p = list1.searchReservationByDni(dniSearch, startNode);
 			    	if (p == nullptr) break;
-			    	
 			        cout << "----------Reservacion------------" << endl;
 			        cout << "Numero de mesa: " << p->getTable() << endl;
 			        cout << "Nombre del cliente: " << p->getName() << endl;
@@ -131,10 +112,7 @@ void CmdInterface::processChoice(int choice) {
 			        found = true;
             		startNode = p->getNext();
 			    }
-			
-			    if (!found) {
-			        cout << "No hay reservaciones para esa cedula" << endl;
-			    }
+			    if (!found) cout << "No hay reservaciones para esa cedula" << endl;
 			    cout << "\¿Desea buscar otra cedula? (s/n): ";
 			    cin >> continuar;
 			    cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -142,86 +120,66 @@ void CmdInterface::processChoice(int choice) {
     		break;
 		}
 		
-		case 4: {
-			app.updateFunction(list1);
-			// Nota: updateFunction suele tener sus propios cin/cout,
-			// pero por seguridad ponemos pausa al volver
-			system("pause"); 
-			break;
-		}
+		case 4: app.updateFunction(list1); system("pause"); break;
 		
 		case 5: {
 		    if (list1.isEmpty()) {
 		        cout << "No hay reservaciones registradas." << endl;
-		        system("pause");
-		        break;
+		        system("pause"); break;
 		    }
-		
 		    cout << "----- Reporte de Reservas por Dia -----" << endl;
 		    mostrarReservasPorDia(list1, "lunes");
 		    mostrarReservasPorDia(list1, "martes");
 		    mostrarReservasPorDia(list1, "miercoles");
 		    mostrarReservasPorDia(list1, "jueves");
 		    mostrarReservasPorDia(list1, "viernes");
-		
 		    system("pause");
 		    break;
 		}
 
-		case 6: {
-			app.deleteFunction(list1, cancelledList);
-			// deleteFunction maneja su flujo, pero aseguramos pausa
-			system("pause"); 
-			break;
-		}
+		case 6: app.deleteFunction(list1, cancelledList); system("pause"); break;
 			
-		case 7: {
-		    cout << "\n--- REPORTES Y LISTADOS ---" << endl;
-		    cout << "1. Ver Reservas (Base de Datos)" << endl;
-		    cout << "2. Ver Clientes Sentados (Comiendo)" << endl;
-		    cout << "3. Ver Cola de Espera" << endl;
-		    
-		    int subOpc = readIntegers("Seleccione una opcion: ", 1, 3);
-
-		    if (subOpc == 1) {
-                if (list1.isEmpty()) {
-                    cout << "No hay reservaciones registradas." << endl;
-                } else {
-                    int total = list1.getCount();
-                    cout << "----- Total Reservas (" << total << ") -----" << endl;
-                    cout << "----- Lista de Reservas -----" << endl;
-                
-                    Reservation* p = list1.getFirst();
-                    while (p != nullptr) {
-                        cout << "----------Reservacion------------" << endl;
-                        cout << "Numero de mesa: " << p->getTable() << endl;
-                        cout << "Nombre del Cliente: " << p->getName() << endl;
-                        cout << "Cedula del Cliente: " << p->getDni() << endl;
-                        cout << "Dia de la reserva: " << p->getDate() << endl;
-                        cout << "Cantidad de personas: " << p->getQty() << endl;
-                        p = p->getNext();
-                    }
-                    cout << "------------------------------" << endl;
+		case 7: { 
+		    cout << "\n--- LISTA DE RESERVAS ACTIVAS ---" << endl;
+            if (list1.isEmpty()) {
+                cout << "No hay reservaciones registradas." << endl;
+            } else {
+                int total = list1.getCount();
+                cout << "----- Total Reservas (" << total << ") -----" << endl;
+                Reservation* p = list1.getFirst();
+                while (p != nullptr) {
+                    cout << "----------Reservacion------------" << endl;
+                    cout << "Numero de mesa: " << p->getTable() << endl;
+                    cout << "Nombre del Cliente: " << p->getName() << endl;
+                    cout << "Cedula del Cliente: " << p->getDni() << endl;
+                    cout << "Dia de la reserva: " << p->getDate() << endl;
+                    cout << "Cantidad de personas: " << p->getQty() << endl;
+                    p = p->getNext();
                 }
-		    }
-		    else if (subOpc == 2) {
-		        clientsList.showQueue(false);
-		    }
-		    else {
-		        waitingQueue.showQueue(true);
-		    }
-		
-		    system("pause"); // CORREGIDO: Pausa simple y efectiva
+                cout << "------------------------------" << endl;
+            }
+		    system("pause"); 
 		    break;
 		}
 		
-		case 8: {
-			app.showCancelledReservations(cancelledList);
-            // Si showCancelled no tiene pausa, la ponemos aqui, si ya tiene, no importa.
-			break; 
+		case 8: app.showCancelledReservations(cancelledList); break; 
+		
+		case 9: { 
+		    cout << "\n--- ESTADO DEL RESTAURANTE ---" << endl;
+		    cout << "1. Ver Clientes en Mesas (Comiendo)" << endl;
+		    cout << "2. Ver Cola de Espera" << endl;
+		    int subOpc = readIntegers("Seleccione una opcion: ", 1, 2);
+		    
+		    if (subOpc == 1) {
+		        clientsList.showQueue(false);
+		    } else {
+		        waitingQueue.showQueue(true);
+		    }
+		    system("pause");
+		    break;
 		}
 		
-		case 9: {
+		case 10: { // Registrar Llegada
             cout << "\n--- RECEPCION (DIA: " << currentSystemDay << ") ---" << endl;
             
             string dni, name, day;
@@ -230,13 +188,12 @@ void CmdInterface::processChoice(int choice) {
             int maxMesas = app.getQtyTables();
             if (maxMesas == 0) {
                 cout << "[!] ERROR: Configure mesas primero (Opc 1)." << endl;
-                system("pause");
-                break; 
+                system("pause"); break; 
             }
 
             dni = readDNI("Ingrese Cedula del Cliente: ");
 
-            // Validar si ya está adentro (Igual que antes)
+            // Validar si ya está adentro (para no duplicar)
             if (waitingQueue.isClientInList(dni)) {
                 cout << "\n[!] EL CLIENTE YA HIZO CHECK-IN." << endl;
                 system("pause"); break;
@@ -245,37 +202,27 @@ void CmdInterface::processChoice(int choice) {
                 cout << "\n[!] EL CLIENTE YA ESTA COMIENDO." << endl;
                 system("pause"); break;
             }
-
-            // 1. BUSCAR RESERVA
-            Reservation* res = list1.searchReservationByDni(dni, list1.getFirst());
+            // 1. Buscamos DIRECTAMENTE si tiene reserva para HOY
+         
+            Reservation* res = list1.searchReservationByDniAndDate(dni, currentSystemDay);
 
             if (res == nullptr) {
+                // Si no encontró para hoy, revisamos si tiene reserva OTRO DIA para avisarle
+                Reservation* resWrongDay = list1.searchReservationByDni(dni, list1.getFirst());
+                
                 cout << "\n[!] ACCESO DENEGADO." << endl;
-                cout << ">> Cliente sin reserva registrada." << endl;
+                
+                if (resWrongDay != nullptr) {
+                    cout << ">> Usted tiene reserva, PERO NO ES PARA HOY (" << currentSystemDay << ")." << endl;
+                    cout << ">> Su reserva aparece para el dia: " << resWrongDay->getDate() << endl;
+                } else {
+                    cout << ">> Cliente sin ninguna reserva registrada en el sistema." << endl;
+                }
+                
                 system("pause"); break; 
             }
 
-            // 2. FILTRO DE DIA (ESTO ES LO NUEVO QUE TE PIDIERON)
-            // Comparamos el día de la reserva con el día del sistema
-            
-            string diaReserva = res->getDate();
-            
-            // Nota: toLower ayuda a que "Viernes" sea igual a "viernes"
-            // (Asumo que tienes una funcion toLower en utils, si no, compara directo)
-            if (toLower(diaReserva) != toLower(currentSystemDay)) {
-                
-                cout << "\n[!] RESERVA INVALIDA PARA HOY." << endl;
-                cout << "------------------------------" << endl;
-                cout << ">> Hoy es: " << currentSystemDay << endl;
-                cout << ">> La reserva del cliente es para: " << diaReserva << endl;
-                cout << "------------------------------" << endl;
-                cout << ">> No se puede aceptar al cliente hoy." << endl;
-                
-                system("pause");
-                break; // Lo sacamos, no entra a la cola
-            }
-
-            // --- SI PASA EL FILTRO, TODO IGUAL QUE ANTES ---
+            // 2. Si pasó el filtro, tomamos los datos de la reserva correcta
             name = res->getName();
             numMesa = res->getTable();
             day = res->getDate(); 
@@ -283,56 +230,45 @@ void CmdInterface::processChoice(int choice) {
             cout << "\n>> [OK] Reserva Confirmada para HOY." << endl;
             cout << ">> Cliente: " << name << " | Mesa: " << numMesa << endl;
 
-            if (clientsList.isTableOccupied(numMesa)) {
+            if (clientsList.isTableOccupied(numMesa)) 
                 cout << "\n[i] AVISO: La mesa " << numMesa << " aun esta ocupada." << endl;
-            } else {
+            else 
                 cout << "\n[i] La mesa " << numMesa << " esta libre." << endl;
-            }
 
             cout << ">> Registrando check-in..." << endl;
             Client clienteLlegando(dni, name, numMesa, day);
 
             if (waitingQueue.enqueue(clienteLlegando)) {
-                cout << ">> EXITO: Cliente ingresado a Restaurante." << endl;
+                cout << ">> EXITO: Cliente ingresado a Sala de Espera." << endl;
             } else {
-                cout << ">> Error:Restaurante lleno con personas en espera." << endl;
+                cout << ">> Error: Restaurante lleno." << endl;
             }
             
             system("pause");
             break;
         }
         
-        case 10: {
+        case 11: { // Sentar Cliente
             cout << "\n--- ASIGNAR MESA (Cola -> Mesa) ---" << endl;
-            
             if (waitingQueue.isEmpty()) {
                 cout << ">> No hay clientes esperando." << endl;
-            } 
-            else {
+            } else {
                 Client clienteAtender;
                 waitingQueue.dequeue(clienteAtender); 
-                
                 cout << ">> Atendiendo a: " << clienteAtender.getName() << endl;
                 cout << ">> Mesa que esperaba: " << clienteAtender.getTable() << endl;
                 
                 int mesaDestino = clienteAtender.getTable();
                 int maxMesas = app.getQtyTables();
-
-                // 2. VALIDACIÓN ESTRICTA
                 bool necesitaCambio = (mesaDestino == 0) || clientsList.isTableOccupied(mesaDestino);
                 
                 if (necesitaCambio) {
-                    if (mesaDestino > 0) {
-                        cout << "[!] La Mesa " << mesaDestino << " sigue OCUPADA por otro comensal." << endl;
-                    } else {
-                        cout << ">> El cliente no tiene mesa especifica asignada." << endl;
-                    }
+                    if (mesaDestino > 0) cout << "[!] La Mesa " << mesaDestino << " sigue OCUPADA." << endl;
+                    else cout << ">> El cliente no tiene mesa especifica." << endl;
                     
                     do {
                         mesaDestino = readIntegers("Asigne una mesa LIBRE (1-" + to_string(maxMesas) + "): ", 1, maxMesas);
-                        if (clientsList.isTableOccupied(mesaDestino)) {
-                            cout << ">> Error: La mesa " << mesaDestino << " TAMBIEN esta ocupada." << endl;
-                        }
+                        if (clientsList.isTableOccupied(mesaDestino)) cout << ">> Error: Ocupada." << endl;
                     } while (clientsList.isTableOccupied(mesaDestino));
                     
                     clienteAtender.setTable(mesaDestino);
@@ -344,65 +280,11 @@ void CmdInterface::processChoice(int choice) {
                     cout << ">> Error critico: Memoria llena." << endl;
                 }
             }
-            
-            system("pause"); // CORREGIDO: Pausa simple
+            system("pause"); 
             break;
         }
         
-        case 11: {
-            cout << "\n--- CIERRE DEL DIA Y CAMBIO DE FECHA ---" << endl;
-            cout << "Dia actual: " << currentSystemDay << endl;
-            
-            // 1. Advertencia
-            cout << "\n[!] ADVERTENCIA: Al cambiar el dia, se vaciara el restaurante." << endl;
-            cout << "    - Se eliminaran los clientes en espera." << endl;
-            cout << "    - Se levantaran los clientes de las mesas." << endl;
-            cout << "¿Seguro desea continuar? (1: Si / 0: No): ";
-            int opc; 
-			cin >> opc;
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            
-            if (opc != 1) {
-                cout << ">> Operacion cancelada." << endl;
-                system("pause"); break;
-            }
-            
-            // 2. Pedir nuevo día
-            string nuevoDia = readValidDay("Ingrese el nuevo dia de operacion: ");
-            
-            // 3. LIMPIEZA TOTAL (El "Cierre de Caja")
-            cout << "\n>> Realizando cierre del dia " << currentSystemDay << "..." << endl;
-            
-            Client basura; // Variable temporal para sacar gente
-            
-            // Vaciamos la Cola de Espera
-            int contCola = 0;
-            while (!waitingQueue.isEmpty()) {
-                waitingQueue.dequeue(basura);
-                contCola++;
-            }
-            
-            // Vaciamos las Mesas (Clientes comiendo)
-            int contMesas = 0;
-            while (!clientsList.isEmpty()) {
-                clientsList.dequeue(basura);
-                contMesas++;
-            }
-            
-            // 4. Actualizar Variable Global
-            currentSystemDay = nuevoDia;
-            
-            cout << ">> Limpieza completada." << endl;
-            cout << "   - " << contCola << " personas retiradas de la cola." << endl;
-            cout << "   - " << contMesas << " mesas liberadas." << endl;
-            cout << "---------------------------------------------" << endl;
-            cout << ">> EXITO: SISTEMA INICIADO PARA EL DIA: " << currentSystemDay << endl;
-            
-            system("pause");
-            break;
-        }
-        
-        case 12: {
+         case 12: { //Tomar Pedidos
 			cout << "\n--- TOMAR PEDIDOS ---" << endl;
 		
 		    if (clientsList.isEmpty()) {
@@ -421,16 +303,17 @@ void CmdInterface::processChoice(int choice) {
 		        Client& cliente = clientsList.getInfo(aux); 
 		        if (cliente.getTable() == tableSearch) {
 		            found = true;
-		
+
 		            char continuar = 's';
 		            while (continuar == 's' || continuar == 'S') {
-		            	
+
 		                int dishCode = readIntegers("Codigo del platillo (1-5): ", 1, 5);
+
 						const MenuItem* item = findMenuItem(dishCode);
-						
+
                 		string nombre = (item != nullptr) ? item->getName() : "Desconocido";
                 		double price = (item != nullptr) ? item->getPrice() : 0.00;
-                		
+
                 		cout << "------------------------------------------------------"<<endl;
                 		cout << " Platillo: "<< nombre <<" || " << "Precio: "<<price<<" Bs."<<endl;
                 		cout << "------------------------------------------------------"<<endl;
@@ -459,7 +342,8 @@ void CmdInterface::processChoice(int choice) {
 		    system("pause");
 		    break;
 		}
-		case 13: {
+		
+	case 13: {
 		    
 		    cout << "\n--- MODIFICAR PEDIDO DE UN CLIENTE ---" << endl;
 		
@@ -534,7 +418,6 @@ void CmdInterface::processChoice(int choice) {
 		    break;
 		}
 
-
 		case 14: {
 		    cout << "\n--- REPORTE DE PEDIDOS POR MESA ---" << endl;
 		
@@ -605,84 +488,165 @@ void CmdInterface::processChoice(int choice) {
 		    break;
 		}
 
-		case 15: {
+		case 15: { // Servir y Facturar (ANTES ERA 16)
 			    cout << "\n--- SERVIR PLATILLOS Y GENERAR FACTURA ---" << endl;
-			
 			    if (clientsList.isEmpty()) {
 			        cout << "No hay clientes en mesas." << endl;
-			        system("pause");
-			        break;
+			        system("pause"); break;
 			    }
-			
 			    int maxMesas = app.getQtyTables();
 			    int tableSearch = readIntegers("Digite la mesa del cliente: ", 1, maxMesas);
-			
 			    ClientNode* aux = clientsList.getFront();
 			    bool found = false;
-			
 			    while (aux != nullptr) {
 			        Client& cliente = clientsList.getInfo(aux);
-			
 			        if (cliente.getTable() == tableSearch) {
 			            found = true;
-			
 			            Orders& pedidos = cliente.getOrders();
 			            if (pedidos.isEmpty()) {
 			                cout << "El cliente no tiene pedidos registrados." << endl;
 			                break;
 			            }
-			
 			            cout << "\n>> Sirviendo platillos para cliente: " 
 			                 << cliente.getName() << " (Mesa " << cliente.getTable() << ")" << endl;
-			
-			            // Crear copia profunda de pedidos para la factura
+			            
 			            Orders copiaPedidos = pedidos; 
-			
-			            // Reportar lo servido
 			            cout << "\n--- PLATILLOS SERVIDOS ---" << endl;
 			            Order servido;
 			            int i = 1;
 			            while (pedidos.pop(servido)) {
 			                const MenuItem* item = findMenuItem(servido.getDishCode());
 			                string nombre = (item != nullptr) ? item->getName() : "Desconocido";
-			
 			                cout << i++ << ". " << nombre
 			                     << " (Codigo: " << servido.getDishCode()
 			                     << ", Precio: Bs. " << servido.getPrice()
 			                     << ", Notas: " << servido.getNotes() << ")" << endl;
 			            }
-			
 			            cout << "Total a pagar: Bs. " << fixed << setprecision(2) 
 			                 << cliente.getTotal() << endl;
-			
-			            // Generar factura
+			            
 			            Invoice factura(
 			                cliente.getDni(),
 			                cliente.getName(),
 			                cliente.getTable(),
 			                cliente.getDay(),
-			                copiaPedidos,   // copia de pedidos
+			                copiaPedidos,   
 			                cliente.getTotal()
 			            );
-			
 			            if (invoices.insertAtBeginning(factura)) {
 			                cout << ">> Factura generada y almacenada exitosamente." << endl;
 			            } else {
 			                cout << ">> Error: No se pudo almacenar la factura." << endl;
 			            }
-			
-			            break; // salir del bucle, ya se atendió la mesa
+			            break; 
 			        }
 			        aux = clientsList.getNext(aux);
 			    }
-			
-			    if (!found) {
-			        cout << "Cliente no encontrado en mesas." << endl;
-			    }
-			
+			    if (!found) cout << "Cliente no encontrado en mesas." << endl;
 			    system("pause");
-			    break;
+			    break;		
 		}
+		
+		case 16: { // COBRAR Y LIBERAR MESA (ANTES ERA 17)
+		    cout << "\n--- COBRAR Y RETIRAR CLIENTE ---" << endl;
+            if (clientsList.isEmpty()) {
+                cout << "No hay clientes en mesas." << endl;
+                system("pause"); break;
+            }
+            int maxMesas = app.getQtyTables();
+            int tableSearch = readIntegers("Digite la mesa a liberar: ", 1, maxMesas);
+
+            ClientNode* aux = clientsList.getFront();
+            bool found = false;
+            
+            while(aux != nullptr) {
+                Client& cliente = clientsList.getInfo(aux);
+                if (cliente.getTable() == tableSearch) {
+                    found = true;
+                    cout << ">> Cliente: " << cliente.getName() << endl;
+                    cout << ">> Total Cancelado: Bs. " << fixed << setprecision(2) << cliente.getTotal() << endl;
+                    cout << ">> Liberando mesa y finalizando reserva..." << endl;
+                    
+                    Reservation* res = list1.findReservationByDate(cliente.getTable(), cliente.getDay());
+                    if (res != nullptr) list1.consumeReservation(res);
+
+                    app.deleteReservationRecord(cliente.getTable(), cliente.getDay());
+                    
+                    if (clientsList.removeClientByTable(tableSearch)) {
+                        cout << ">> EXITO: El cliente se ha retirado." << endl;
+                    } else {
+                        cout << ">> Error al liberar la mesa." << endl;
+                    }
+                    break;
+                }
+                aux = clientsList.getNext(aux);
+            }
+            
+            if(!found) cout << ">> La mesa " << tableSearch << " ya estaba vacia o no existe." << endl;
+            
+            system("pause");
+            break;
+		}
+		
+		case 17: { // CIERRE DE CAJA 
+            cout << "\n--- CIERRE DE CAJA - REPORTE ---" << endl;
+            cout << "Dia actual: " << currentSystemDay << endl;
+            
+            cout << "\nGenerando Reporte de Ventas..." << endl;
+            cout << "---------------------------------------------" << endl;
+            if (invoices.isEmpty()) {
+                cout << ">> No hubo ventas registradas hoy." << endl;
+            } else {
+                double granTotal = 0.0;
+                int countFacturas = 0;
+                auto nodoFactura = invoices.getFirst(); 
+                cout << left << setw(10) << "MESA" << setw(20) << "CLIENTE" << "MONTO" << endl;
+                cout << "---------------------------------------------" << endl;
+                while (nodoFactura != nullptr) {
+                    Invoice info = invoices.getInfo(nodoFactura);
+                    cout << left << setw(10) << info.getTable() 
+                         << setw(20) << info.getClientName() 
+                         << "Bs. " << fixed << setprecision(2) << info.getTotal() << endl;
+                    granTotal += info.getTotal();
+                    countFacturas++;
+                    nodoFactura = invoices.getNext(nodoFactura);
+                }
+                cout << "---------------------------------------------" << endl;
+                cout << "TOTAL CAJA (" << currentSystemDay << "): Bs. " << granTotal << endl;
+            }
+
+            cout << "\n[!] PRECAUCION: Se eliminaran todos los datos del dia." << endl;
+            cout << "¿Confirmar cierre? (1: Si / 0: No): ";
+            int opc; cin >> opc;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            
+            if (opc != 1) {
+                cout << ">> Cancelado." << endl;
+                system("pause"); break;
+            }
+            
+            Client basura; Invoice basuraInv;
+            while (!waitingQueue.isEmpty()) waitingQueue.dequeue(basura);
+            while (!clientsList.isEmpty()) clientsList.dequeue(basura);
+            while (!invoices.isEmpty()) invoices.removeFromBeginning(basuraInv);
+            
+            cout << ">> CAJA CERRADA Y SISTEMA LIMPIO." << endl;
+            system("pause");
+            break;
+		}
+
+		
+		case 18: { // CAMBIO DE DIA 
+            cout << "\n--- CAMBIO DE DIA DE OPERACION ---" << endl;
+            cout << "Dia actual: " << currentSystemDay << endl;
+            string nuevoDia = readValidDay("Ingrese el nuevo dia de operacion: ");
+            currentSystemDay = nuevoDia;
+            cout << ">> EXITO: Dia cambiado a " << currentSystemDay << "." << endl;
+            system("pause");
+            break;
+        }
+		
+		
 		default:
 			cout << "Ingrese un item de menu valido" << endl;
 			system("pause");
@@ -701,23 +665,30 @@ void CmdInterface::displayMenu() const {
     cout << "2. Reservar una mesa" << endl;
     cout << "3. Consultar Reserva por Cedula" << endl;
     cout << "4. Actualizar Reserva" << endl;
-    cout << "5. Reporte de Reservas" << endl;
+    cout << "5. Reporte de Reservas por dia" << endl;
     cout << "6. Cancelar Reserva" << endl;
-    cout << "7. Listar Mesas / Cola de Espera" << endl;
+    cout << "7. Listar Reservas" << endl;
     cout << "8. Listar Reservas Canceladas" << endl;
     cout << "-------------------------------" << endl;
     cout << "	   CLIENTES" << endl;
     cout << "-------------------------------" << endl;
-    cout << "9. Registrar llegada (Mesa/Cola)" << endl;
-    cout << "10. Sentar Cliente (Cola -> Mesa)" << endl;
-    cout << "11. Cambiar Dia" << endl;
+    cout << "9.  Listar Estado (Mesas/Cola de Espera)" << endl;
+    cout << "10. Registrar llegada (Mesa/Cola)" << endl;
+    cout << "11. Sentar Cliente (Cola -> Mesa)" << endl;
     cout << "-------------------------------" << endl;
     cout << "	   PEDIDOS" << endl;
     cout << "-------------------------------" << endl;
     cout << "12. Tomar pedidos" << endl;
     cout << "13. Modificar pedido de un cliente" << endl;
     cout << "14. Reporte pedidos" << endl;
-    cout << "15. Servir pedidos" << endl;
+    cout << "15. Servir y Facturar" << endl;
+    cout << "-------------------------------" << endl;
+    cout << "	   CAJA" << endl;
+    cout << "-------------------------------" << endl;
+    cout << "16. Cobrar y Liberar Mesa" << endl;
+    cout << "17. CIERRE DE CAJA" << endl;
+    cout << "18. Cambiar Dia" << endl;
+   
 	cout << "-------------------------------" << endl;
 	cout << "0. Salir" << endl;
 	cout << "Ingrese su opcion" << endl;
